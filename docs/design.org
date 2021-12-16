@@ -1,0 +1,126 @@
+#+title: Design
+#+author: Miguel Piña
+#+date: [2021-12-15 mié 17:30]
+
+
+* Package diagram
+
+  The next diagram shows in a general form the organization in packages of this
+  project.
+
+  #+begin_src plantuml :file packages.png :exports results
+    allow_mixing
+
+    package "algorithms" {
+            package "queues"
+            package "stacks"
+            package "work-stealing"
+    }
+
+    package "infrastructure" {
+            package "JSON"
+            package "Graphs"
+            package "CMD"
+    }
+
+    package "Experiments" {
+            package "SpanningTree"
+            package "ZeroCostExperiments"
+    }
+
+    package "Tests" {
+            package "queues-test"
+            package "work-stealing-test"
+            package "stacks-test"
+
+            package "spanning-tree-test"
+            package "zero-cost-test"
+    }
+  #+end_src
+
+   #+RESULTS:
+   [[file:packages.png]]
+
+** Detailed packages
+
+   In this section, we describe each package in the project in a more detailed
+   way, we use class diagrams inside of the package to know how is structured
+   the pieces of each major part.
+
+   We begin with the package of *algorithms*, subpackage *queues*:
+
+  #+begin_src plantuml :file algorithms.png :exports results
+    allow_mixing
+
+    package "algorithms" {
+            package "queues" {
+                    abstract class kBasket {
+                            - Object[K] A
+                            - STATE = OPEN
+                            + STATE put(x)
+                            + Object take()
+                    }
+                    class kBasketFAI {
+                            - Object[K] A
+                            - TAKES = 0
+                            - PUTS = 0
+                            - STATE = OPEN
+                            + STATE put(x)
+                            + Object take()
+                    }
+                    kBasket <-- kBasketFAI
+                    class kBasketCAS {
+                            - Object[K] A
+                            - TAKES_p = {0, 1, ..., K - 1}
+                            - PUTS_p = {0, 1, ..., K - 1}
+                            - STATE = OPEN
+                            + STATE put(x)
+                            + Object take()
+                    }
+                    kBasket <-- kBasketCAS
+                    class LLIC {
+                            + int LL()
+                            + void IC()
+                    }
+                    class BasketQueue {
+                            - kBasket[] A
+                            - LLSC Head
+                            - LLSC Tail
+                            + state ENQUEUE
+                            + Object DEQUEUE
+                    }
+            }
+            package "stacks"
+            package "work-stealing"
+    }
+
+
+  #+end_src
+
+  #+RESULTS:
+  [[file:algorithms.png]]
+
+
+* Experiments
+
+   We perform many simple experiments. We testing the fully modular
+   basket queue in the following manner.  We create one instance of the basket
+   queue and it is shared by *n* threads. Then, we perform the following
+   experiments:
+
+   1. Knowing the number of processors that have the machine where we test
+      the basket queue, we execute a fixed number x (10 billions) of
+      enqueues and we measure the execution time done by the number of
+      processes, from one to the maximum number of threads supported by the
+      machine. Each time that we increment the number of processes, each process
+      perform the total of operations between the number of processes at that
+      moment, i.e. *x/n* enqueues. These insertions occur concurrently.
+
+   2. In a similar way, we complement the experiment performing dequeues after
+      execute all enqueues. We want see the amount of seconds to complete
+      against the number of threads.
+
+   This type of experiments are known as /zero cost experiments/, this due the
+   fact that all operations performed have not any task associated, i.e. there
+   are not work to do when the values/objects are inserted/extracted in the data
+   structure. Just is insert and extract dummy values.
