@@ -1,0 +1,9 @@
+#+title: Test battery
+#+author: Miguel Piña
+#+date: [2021-12-15 mié 17:15]
+
+In this project, we will test and compare many concurrent/distributed algorithms
+for data structures. The main language used to code the algorithms and other
+stuff is C++ with CMake.
+
+Technical details about this project are in the folder [[file:docs][docs]].
