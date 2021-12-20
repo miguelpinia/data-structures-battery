@@ -47,7 +47,9 @@
    way, we use class diagrams inside of the package to know how is structured
    the pieces of each major part.
 
-   We begin with the package of *algorithms*, subpackage *queues*:
+   We begin with the package of *algorithms*, with the following subpackages:
+   queues, stacks and work-stealing. The first algorithms implemented will be
+   the classes inside of the package of *queues*.
 
   #+begin_src plantuml :file algorithms.png :exports results
     allow_mixing
