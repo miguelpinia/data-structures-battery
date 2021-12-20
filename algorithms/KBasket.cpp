@@ -19,7 +19,7 @@ KBasketFAI::KBasketFAI(int k) : size_k(k)
 }
 
 
-void KBasketFAI::initializeDefault(int n) {
+void KBasketFAI::initializeDefault(int n) { // To perform a lazy loading after create a  object with default constructor
     A = new std::atomic_int[n];
     size_k = n;
     initializeFAI(A, n);
@@ -40,10 +40,10 @@ STATE_PUT KBasketFAI::put(int x)
         if (state == CLOSED || puts >= size_k) {
             return FULL;
         } else {
-            puts = PUTS++; // Equivalente a fetch_add(1) https://en.cppreference.com/w/cpp/atomic/atomic/operator_arith
+            puts = PUTS++; // Equivalent to fetch_add(1) https://en.cppreference.com/w/cpp/atomic/atomic/operator_arith FAI
             if (puts >= size_k) {
                 return FULL;
-            } else if (A[puts].exchange(x) == BOTTOM) {// https://en.cppreference.com/w/cpp/atomic/atomic/exchange
+            } else if (A[puts].exchange(x) == BOTTOM) {// https://en.cppreference.com/w/cpp/atomic/atomic/exchange (swap)
                 return OK;
             }
         }
@@ -91,7 +91,7 @@ KBasketCAS::~KBasketCAS() {
     delete [] A;
 }
 
-void KBasketCAS::initializeDefault(int n) {
+void KBasketCAS::initializeDefault(int n) { // To perform a lazy loading after create a  object with default constructor
     A = new std::atomic_int[n];
     size_n = n;
     initializeCAS(A, n);
@@ -113,7 +113,7 @@ int KBasketCAS::compete(int pos)
 
 STATE_PUT KBasketCAS::put(int x, int process)
 {
-    int bottom = BOTTOM;
+    int bottom = BOTTOM; // can't compare const int& respect to the value in atomic<int>
     if (STATE.load() == CLOSED) {
         return FULL;
     } else if (A[process].load() == BOTTOM) {
@@ -129,14 +129,14 @@ bool inTakes(int process, std::unordered_set<int> set) {
     return got != set.end();
 }
 
-int randomValInSet(std::unordered_set<int> set) { // ¿Testear más?
+int randomValInSet(std::unordered_set<int> set) { //  TODO: Add tests (MAPA 2021-12-19)
     int size = set.size();
     std::default_random_engine generator;
     std::uniform_int_distribution<int> distribution(0,size);
     std::unordered_set<int> :: iterator itr;
     int pos = distribution(generator);
     auto it = set.begin();
-    std::advance(it, pos);
+    std::advance(it, pos); //  TODO: Delete object once it's hit (MAPA 2021-12-19)
     return *it;
 }
 
