@@ -1,16 +1,21 @@
 #include <atomic>
 
+struct padded_int {
+    int value = 0;
+    char padding[64 - sizeof(int)];
+};
+
 class LLICRW
 {
 private:
-    int* M;
+    padded_int* M;
     int num_processes;
 public:
     LLICRW();
     LLICRW(int n);
     ~LLICRW();
     void initializeDefault(int n);
-    int LL(int max_p);
+    int LL();
     void IC(int max_p, int process);
 };
 

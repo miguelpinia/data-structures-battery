@@ -143,7 +143,7 @@ void RWCASBasketQueue::enqueue(int x, int process)
 {
     int tail;
     while (true) {
-        tail = TAIL.LL(process);
+        tail = TAIL.LL();
         if (A[tail].put(x, process) == OK) {
             TAIL.IC(tail, process);
             return;
@@ -155,8 +155,8 @@ void RWCASBasketQueue::enqueue(int x, int process)
 
 int RWCASBasketQueue::dequeue(int process)
 {
-    int head = HEAD.LL(process);
-    int tail = TAIL.LL(process);
+    int head = HEAD.LL();
+    int tail = TAIL.LL();
     int x;
     while (true) {
         if (head < tail) {
@@ -166,8 +166,8 @@ int RWCASBasketQueue::dequeue(int process)
             }
             HEAD.IC(head, process);
         }
-        int hhead = HEAD.LL(process);
-        int ttail = TAIL.LL(process);
+        int hhead = HEAD.LL();
+        int ttail = TAIL.LL();
         if (hhead == head && ttail == tail) {
             return EMPTY;
         }
@@ -206,7 +206,7 @@ void RWFAIBasketQueue::enqueue(int x, int process)
 {
     int tail;
     while (true) {
-        tail = TAIL.LL(process);
+        tail = TAIL.LL();
         if (A[tail].put(x) == OK) {
             TAIL.IC(tail, process);
             return;
@@ -218,8 +218,8 @@ void RWFAIBasketQueue::enqueue(int x, int process)
 
 int RWFAIBasketQueue::dequeue(int process)
 {
-    int head = HEAD.LL(process);
-    int tail = TAIL.LL(process);
+    int head = HEAD.LL();
+    int tail = TAIL.LL();
     int x;
     while (true) {
         if (head < tail) {
@@ -229,8 +229,8 @@ int RWFAIBasketQueue::dequeue(int process)
             }
             HEAD.IC(head, process);
         }
-        int hhead = HEAD.LL(process);
-        int ttail = TAIL.LL(process);
+        int hhead = HEAD.LL();
+        int ttail = TAIL.LL();
         if (hhead == head && ttail == tail) {
             return EMPTY;
         }
