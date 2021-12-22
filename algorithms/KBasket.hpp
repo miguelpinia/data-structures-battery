@@ -1,3 +1,5 @@
+#ifndef KBASKET_HPP
+#define KBASKET_HPP
 #include <unordered_set>
 #include <atomic>
 #include "utils.hpp" // Se declaran los estados para el basket y para put
@@ -41,3 +43,4 @@ public:
     STATE_PUT put(int x, int process);
     int take(int process);
 };
+#endif

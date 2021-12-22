@@ -1,3 +1,5 @@
+#ifndef BASKETQUEUE_HPP
+#define BASKETQUEUE_HPP
 #include "KBasket.hpp"
 #include "LLIC.hpp"
 
@@ -71,3 +73,4 @@ public:
     void enqueue(int x, int process);
     int dequeue(int process);
 };
+#endif

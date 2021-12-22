@@ -1,6 +1,8 @@
-set(Main_SRCS
-    main.cpp
-)
+find_package(Threads REQUIRED)
+
+set(CMAKE_CXX_STANDARD 20)
+
+file(GLOB Main_SRCS "*.cpp" "*.h" "*.hpp")
 
 add_executable(queues
     ${Main_SRCS}

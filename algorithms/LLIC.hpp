@@ -1,3 +1,5 @@
+#ifndef LLIC_HPP
+#define LLIC_HPP
 #include <atomic>
 
 struct padded_int {
@@ -13,7 +15,22 @@ private:
 public:
     LLICRW();
     LLICRW(int n);
-    ~LLICRW();
+    // ~LLICRW();
+    void initializeDefault(int n);
+    int LL();
+    void IC(int max_p, int process);
+};
+
+
+class LLICRWNC
+{
+private:
+    int* M;
+    int num_processes;
+public:
+    LLICRWNC();
+    LLICRWNC(int n);
+    // ~LLICRW();
     void initializeDefault(int n);
     int LL();
     void IC(int max_p, int process);
@@ -25,6 +42,8 @@ private:
     std::atomic_int R = 0;
 
 public:
+    LLICCAS();
     int LL();
     void IC(int expected);
 };
+#endif
