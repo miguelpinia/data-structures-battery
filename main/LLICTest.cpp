@@ -25,7 +25,7 @@ void print_execution_LLICRW(int cores) {
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&llic](int processID) {
         int max = 0;
-        while (max < 1'000'000'000) {
+        while (max < 100'000'000) {
             max = llic.LL();
             llic.IC(max, processID);
         }
@@ -69,7 +69,7 @@ void print_execution_LLICCAS(int cores) {
     std::vector<std::thread> vecOfThreads;
     std::function<void()> func = [&llic]() {
         int max = 0;
-        while (max < 1'000'000'000) {
+        while (max < 100'000'000) {
             max = llic.LL();
             llic.IC(max);
         }
@@ -114,7 +114,7 @@ void print_execution_LLICRWNC(int cores) {
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&llic](int processID) {
         int max = 0;
-        while (max < 1'000'000'000) {
+        while (max < 100'000'000) {
             max = llic.LL();
             llic.IC(max, processID);
         }
@@ -157,7 +157,7 @@ void print_execution_FAI(int cores) {
     // Function to execute
     std::function<void()> func = [&fai]() {
         int max = 0;
-        while (max < 1'000'000'000) {
+        while (max < 100'000'000) {
             max = fai.fetch_add(1);
         }
     };
