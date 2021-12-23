@@ -9,10 +9,7 @@ int LLICCAS::LL()
 
 void LLICCAS::IC(int expected)
 {
-    auto r = R.load();
-    if (r == expected) {
-        R.compare_exchange_strong(expected, expected + 1);
-    }
+    R.compare_exchange_strong(expected, expected + 1);
 }
 
 LLICRW::LLICRW() {}
@@ -43,7 +40,7 @@ int LLICRW::LL() {
 void LLICRW::IC(int max_p, int process) {
     int maximum = 0;
     for(int i = 0; i < num_processes; i++) {
-        if (M[i].value >= max_p) maximum = M[i].value;
+        if (M[i].value > maximum) maximum = M[i].value;
     }
     if (maximum == max_p) {
         M[process].value = max_p + 1;
@@ -85,7 +82,7 @@ int LLICRWNC::LL() {
 void LLICRWNC::IC(int max_p, int process) {
     int maximum = 0;
     for(int i = 0; i < num_processes; i++) {
-        if (M[i] >= max_p) maximum = M[i];
+        if (M[i] > maximum) maximum = M[i];
     }
     if (maximum == max_p) {
         M[process] = max_p + 1;
