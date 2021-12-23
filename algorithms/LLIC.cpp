@@ -30,17 +30,20 @@ void LLICRW::initializeDefault(int n) {
 
 int LLICRW::LL() {
     int max_p = 0;
+    int tmp;
     for(int i = 0; i < num_processes; i++) {
-        if (M[i].value >= max_p)
-            max_p = M[i].value;
+        tmp = M[i].value;
+        if (tmp >= max_p) max_p = tmp;
     }
     return max_p;
 }
 
 void LLICRW::IC(int max_p, int process) {
     int maximum = 0;
+    int tmp;
     for(int i = 0; i < num_processes; i++) {
-        if (M[i].value > maximum) maximum = M[i].value;
+        tmp = M[i].value;
+        if (tmp > maximum) maximum = tmp;
     }
     if (maximum == max_p) {
         M[process].value = max_p + 1;

@@ -338,7 +338,7 @@ double same_ops_FAI(int cores) {
     // Function to execute
     std::function<void()> func = [&fai, operations]() {
         for (int i = 0; i < operations; ++i) {
-            fai.fetch_add(1);
+            fai++;
         }
     };
     for (int i = 0; i < cores + 1; i++) {
