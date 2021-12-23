@@ -1,16 +1,17 @@
 #ifndef LLIC_HPP
 #define LLIC_HPP
 #include <atomic>
+#include <stdalign.h>
 
-struct padded_int {
-    int value = 0;
-    char padding[64 - sizeof(int)];
+// https://en.cppreference.com/w/cpp/language/object#Alignment
+struct alignas(64) aligned_int { // https://en.cppreference.com/w/cpp/language/alignas
+    int value = 0; // We use 64 bytes to allocate the int value;
 };
 
 class LLICRW
 {
 private:
-    padded_int* M;
+    aligned_int* M;
     int num_processes;
 public:
     LLICRW();

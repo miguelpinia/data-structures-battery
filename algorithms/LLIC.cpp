@@ -16,7 +16,7 @@ LLICRW::LLICRW() {}
 
 LLICRW::LLICRW(int n): num_processes(n)
 {
-    M = new padded_int[num_processes];
+    M = new aligned_int[num_processes];
 }
 
 // LLICRW::~LLICRW() {
@@ -25,7 +25,7 @@ LLICRW::LLICRW(int n): num_processes(n)
 
 void LLICRW::initializeDefault(int n) {
     num_processes = n;
-    M = new padded_int[num_processes];
+    M = new aligned_int[num_processes];
 }
 
 int LLICRW::LL() {
