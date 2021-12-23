@@ -204,14 +204,14 @@ void print_execution_FAI(int cores) {
 }
 
 double same_ops_LLICRW(int cores) {
-    std::cout << "Performing 189000000 of operations. Each thread do the total between #threads: Case of LL/IC RW without False Sharing" << std::endl;
+    std::cout << "Performing 500000000 of operations. Each thread do the total between #threads: Case of LL/IC RW without False Sharing" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     LLICRW llic;
     llic.initializeDefault(cores + 1);
-    int operations = 189000000 / (cores + 1);
+    int operations = 500000000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&llic, operations](int processID) {
         int max = 0;
@@ -246,12 +246,12 @@ double same_ops_LLICRW(int cores) {
 }
 
 double same_ops_LLICCAS(int cores) {
-    std::cout << "\nPerforming 189000000 of operations. Each thread do the total between #threads: Case of LL/IC CAS based " << std::endl;
+    std::cout << "\nPerforming 500000000 of operations. Each thread do the total between #threads: Case of LL/IC CAS based " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     LLICCAS llic;
-    int operations = 189000000 / (cores + 1);
+    int operations = 500000000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void()> func = [&llic, operations]() {
         int max = 0;
@@ -286,14 +286,14 @@ double same_ops_LLICCAS(int cores) {
 }
 
 double same_ops_LLICRWNC(int cores) {
-    std::cout << "\nPerforming 189000000 of operations. Each thread do the total between #threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 500000000 of operations. Each thread do the total between #threads: Case of LL/IC RW With FalseSharing " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     LLICRWNC llic;
     llic.initializeDefault(cores + 1);
-    int operations = 189000000 / (cores + 1);
+    int operations = 500000000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&llic, operations](int processID) {
         int max = 0;
@@ -327,13 +327,13 @@ double same_ops_LLICRWNC(int cores) {
 }
 
 double same_ops_FAI(int cores) {
-    std::cout << "\nPerforming 189000000 of operations. Each thread do the total between #threads: Case of Fetch&Increment" << std::endl;
+    std::cout << "\nPerforming 500000000 of operations. Each thread do the total between #threads: Case of Fetch&Increment" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     std::atomic_int fai;
-    int operations = 189000000 / (cores + 1);
+    int operations = 500000000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     // Function to execute
     std::function<void()> func = [&fai, operations]() {
