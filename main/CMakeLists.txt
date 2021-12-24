@@ -30,6 +30,8 @@ target_link_libraries(queues
   algorithms
   nlohmann_json::nlohmann_json
   Threads::Threads
-)
+  )
+
+set_target_properties(queues PROPERTIES COMPILE_FLAGS "-save-temps")
 
 install(TARGETS queues DESTINATION bin)

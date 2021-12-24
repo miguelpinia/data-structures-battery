@@ -213,7 +213,7 @@ double same_ops_LLICRW(int cores) {
     llic.initializeDefault(cores + 1);
     int operations = 500000000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
-    std::function<void(int)> func = [&llic, operations](int processID) {
+    std::function<void(int)> func = [&](int processID) {
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
@@ -253,7 +253,7 @@ double same_ops_LLICCAS(int cores) {
     LLICCAS llic;
     int operations = 500000000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
-    std::function<void()> func = [&llic, operations]() {
+    std::function<void()> func = [&]() {
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
@@ -295,7 +295,7 @@ double same_ops_LLICRWNC(int cores) {
     llic.initializeDefault(cores + 1);
     int operations = 500000000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
-    std::function<void(int)> func = [&llic, operations](int processID) {
+    std::function<void(int)> func = [&](int processID) {
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
@@ -332,13 +332,13 @@ double same_ops_FAI(int cores) {
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    std::atomic_int fai;
-    int operations = 500000000 / (cores + 1);
+    std::atomic_int fai = 0;
     std::vector<std::thread> vecOfThreads;
-    // Function to execute
-    std::function<void()> func = [&fai, operations]() {
+    int operations = 500000000 / (cores + 1);
+    // // Function to execute
+    std::function<void()> func = [&]() {
         for (int i = 0; i < operations; ++i) {
-            fai++;
+            fai.fetch_add(1);
         }
     };
     for (int i = 0; i < cores + 1; i++) {

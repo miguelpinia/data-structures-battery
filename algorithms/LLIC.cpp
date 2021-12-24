@@ -9,7 +9,9 @@ int LLICCAS::LL()
 
 void LLICCAS::IC(int expected)
 {
-    R.compare_exchange_strong(expected, expected + 1);
+    if (R.load() == expected) {
+        R.compare_exchange_strong(expected, expected + 1);
+    }
 }
 
 LLICRW::LLICRW() {}
