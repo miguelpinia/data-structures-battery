@@ -8,10 +8,14 @@ struct alignas(64) aligned_int { // https://en.cppreference.com/w/cpp/language/a
     int value = 0; // We use 64 bytes to allocate the int value;
 };
 
+struct alignas(64) aligned_atomic_int {
+    std::atomic<int> value = 0;
+};
+
 class LLICRW
 {
 private:
-    aligned_int* M;
+    aligned_atomic_int* M;
     int num_processes;
 public:
     LLICRW();
@@ -26,7 +30,7 @@ public:
 class LLICRWNC
 {
 private:
-    int* M;
+    std::atomic<int>* M;
     int num_processes;
 public:
     LLICRWNC();
