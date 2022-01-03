@@ -367,7 +367,7 @@ double same_ops_FAI(int cores) {
     return duration;
 }
 
-double latency_fai(int cores) {
+long latency_fai(int cores) {
     std::cout << "\nTesting the latency of each operation as contention grows (FAI)\n" << std::endl;
 
     std::clock_t c_start = std::clock();
@@ -402,12 +402,12 @@ double latency_fai(int cores) {
     }
     auto t_end = std::chrono::high_resolution_clock::now();
     std::clock_t c_end = std::clock();
-    double duration = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+    long duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, fai.load());
     return duration;
 }
 
-double latency_LLICCAS(int cores) {
+long latency_LLICCAS(int cores) {
     std::cout << "\nTesting the latency of each operation as contention grows (LLICCAS)\n" << std::endl;
 
     std::clock_t c_start = std::clock();
@@ -443,12 +443,12 @@ double latency_LLICCAS(int cores) {
     }
     auto t_end = std::chrono::high_resolution_clock::now();
     std::clock_t c_end = std::clock();
-    double duration = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+    long duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
     return duration;
 }
 
-void write_to_json(std::vector<double> v1, std::vector<double> v2, std::vector<double> v3, std::vector<double> v4, std::vector<double> v5, std::vector<double> v6) {
+void write_to_json(std::vector<double> v1, std::vector<double> v2, std::vector<double> v3, std::vector<double> v4, std::vector<long> v5, std::vector<long> v6) {
     json j;
     j.emplace("RW", v1);
     j.emplace("RWNC", v2);
@@ -474,8 +474,8 @@ void testLLICRW() {
     std::vector<double> llicrwncvec;
     std::vector<double> lliccasvec;
     std::vector<double> faivec;
-    std::vector<double> latfai;
-    std::vector<double> latllic;
+    std::vector<long> latfai;
+    std::vector<long> latllic;
     for (int i = 0; i < (int)processor_count; ++i) {
         std::cout << "\n\nPerforming experiment for " << i + 1 << " cores\n\n" << std::endl;
         // print_execution_LLICRW(i);
