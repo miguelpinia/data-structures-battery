@@ -7,8 +7,10 @@
 #include <functional>
 #include <fstream>
 #include <vector>
+#include <barrier>
 #include "nlohmann/json.hpp"
 #include "LLICTest.hpp"
+
 
 
 using json = nlohmann::json;
@@ -365,17 +367,103 @@ double same_ops_FAI(int cores) {
     return duration;
 }
 
-void write_to_json(std::vector<double> v1, std::vector<double> v2, std::vector<double> v3, std::vector<double> v4) {
+double latency_fai(int cores) {
+    std::cout << "\nTesting the latency of each operation as contention grows (FAI)\n" << std::endl;
+
+    std::clock_t c_start = std::clock();
+    auto t_start = std::chrono::high_resolution_clock::now();
+    auto wait_for_begin = []() noexcept {
+        std::cout << "Begining execution\n";
+    };
+    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::atomic<int> fai = 0;
+    std::vector<std::thread> threads;
+
+    std::function<void()> func = [&]() {
+        sync_point.arrive_and_wait();
+        fai.fetch_add(1);
+    };
+
+    for (int i = 0; i < cores + 1; i++) {
+        threads.push_back(std::thread(func));
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(i, &cpuset);
+        int rc = pthread_setaffinity_np(threads[i].native_handle(),
+                                        sizeof(cpu_set_t), &cpuset);
+        if (rc != 0) {
+            std::cerr << "Error calling pthread_setaffinity_np: " << rc << "\n";
+        }
+    }
+    for (std::thread &th : threads) {
+        if (th.joinable()) {
+            th.join();
+        }
+    }
+    auto t_end = std::chrono::high_resolution_clock::now();
+    std::clock_t c_end = std::clock();
+    double duration = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+    print_time((c_end - c_start), duration, fai.load());
+    return duration;
+}
+
+double latency_LLICCAS(int cores) {
+    std::cout << "\nTesting the latency of each operation as contention grows (LLICCAS)\n" << std::endl;
+
+    std::clock_t c_start = std::clock();
+    auto t_start = std::chrono::high_resolution_clock::now();
+    auto wait_for_begin = []() noexcept {
+        std::cout << "Begining execution\n";
+    };
+    std::barrier sync_point(cores + 1, wait_for_begin);
+    LLICCAS llic;
+    std::vector<std::thread> threads;
+
+    std::function<void()> func = [&]() {
+        sync_point.arrive_and_wait();
+        int m = llic.LL();
+        llic.IC(m);
+    };
+
+    for (int i = 0; i < cores + 1; i++) {
+        threads.push_back(std::thread(func));
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(i, &cpuset);
+        int rc = pthread_setaffinity_np(threads[i].native_handle(),
+                                        sizeof(cpu_set_t), &cpuset);
+        if (rc != 0) {
+            std::cerr << "Error calling pthread_setaffinity_np: " << rc << "\n";
+        }
+    }
+    for (std::thread &th : threads) {
+        if (th.joinable()) {
+            th.join();
+        }
+    }
+    auto t_end = std::chrono::high_resolution_clock::now();
+    std::clock_t c_end = std::clock();
+    double duration = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+    print_time((c_end - c_start), duration, llic.LL());
+    return duration;
+}
+
+void write_to_json(std::vector<double> v1, std::vector<double> v2, std::vector<double> v3, std::vector<double> v4, std::vector<double> v5, std::vector<double> v6) {
     json j;
     j.emplace("RW", v1);
     j.emplace("RWNC", v2);
     j.emplace("CAS", v3);
     j.emplace("FAI", v4);
+    j.emplace("LAT_FAI", v5);
+    j.emplace("LAT_LLIC", v6);
     std::cout << std::setw(4) << j << std::endl;
     std::ofstream file("results.json");
     file << std::setw(4) << j << std::endl;
     file.close();
 }
+
+
+
 
 
 void testLLICRW() {
@@ -386,17 +474,22 @@ void testLLICRW() {
     std::vector<double> llicrwncvec;
     std::vector<double> lliccasvec;
     std::vector<double> faivec;
+    std::vector<double> latfai;
+    std::vector<double> latllic;
     for (int i = 0; i < (int)processor_count; ++i) {
         std::cout << "\n\nPerforming experiment for " << i + 1 << " cores\n\n" << std::endl;
         // print_execution_LLICRW(i);
         // print_execution_LLICRWNC(i);
         // print_execution_LLICCAS(i);
         // print_execution_FAI(i);
-        std::cout << "\n\nPerforming the same number of operations by type: " << std::endl;
-        llicrwvec.push_back(same_ops_LLICRW(i));
-        llicrwncvec.push_back(same_ops_LLICRWNC(i));
-        lliccasvec.push_back(same_ops_LLICCAS(i));
-        faivec.push_back(same_ops_FAI(i));
+        // std::cout << "\n\nPerforming the same number of operations by type: " << std::endl;
+        // llicrwvec.push_back(same_ops_LLICRW(i));
+        // llicrwncvec.push_back(same_ops_LLICRWNC(i));
+        // lliccasvec.push_back(same_ops_LLICCAS(i));
+        // faivec.push_back(same_ops_FAI(i));
+        latfai.push_back(latency_fai(i));
+        latllic.push_back(latency_LLICCAS(i));
+
     }
-    write_to_json(llicrwvec, llicrwncvec, lliccasvec, faivec);
+    write_to_json(llicrwvec, llicrwncvec, lliccasvec, faivec, latfai, latllic);
 }
