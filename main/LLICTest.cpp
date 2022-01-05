@@ -359,46 +359,34 @@ double same_ops_FAI(int cores) {
     return duration;
 }
 
-void write_to_json(std::vector<double> v1, std::vector<double> v2, std::vector<double> v3, std::vector<double> v4) {
-    json j;
-    j.emplace("RW", v1);
-    j.emplace("RWNC", v2);
-    j.emplace("CAS", v3);
-    j.emplace("FAI", v4);
-    // j.emplace("LAT_FAI", v5);
-    // j.emplace("LAT_LLIC", v6);
-    std::cout << std::setw(4) << j << std::endl;
-    std::ofstream file("results.json");
-    file << std::setw(4) << j << std::endl;
-    file.close();
-}
-
-
-
-
-
-void testLLICRW() {
+void experiment_time_execution(int iterations) {
     std::cout << "Testing LL/IC" << std::endl;
     const auto processor_count = std::thread::hardware_concurrency();
     std::cout << "Number of cores: " << processor_count << std::endl;
-    std::vector<double> llicrwvec;
-    std::vector<double> llicrwncvec;
-    std::vector<double> lliccasvec;
-    std::vector<double> faivec;
-    for (int i = 0; i < (int)processor_count; ++i) {
-        std::cout << "\n\nPerforming experiment for " << i + 1 << " cores\n\n" << std::endl;
-        // print_execution_LLICRW(i);
-        // print_execution_LLICRWNC(i);
-        // print_execution_LLICCAS(i);
-        // print_execution_FAI(i);
-        std::cout << "\n\nPerforming the same number of operations by type: " << std::endl;
-        llicrwvec.push_back(same_ops_LLICRW(i));
-        llicrwncvec.push_back(same_ops_LLICRWNC(i));
-        lliccasvec.push_back(same_ops_LLICCAS(i));
-        faivec.push_back(same_ops_FAI(i));
-        // latfai.push_back(latency_fai(i));
-        // latllic.push_back(latency_LLICCAS(i));
+    json result;
+    for (int iter = 0; iter < iterations; ++iter) {
+        std::vector<double> llicrwvec;
+        std::vector<double> llicrwncvec;
+        std::vector<double> lliccasvec;
+        std::vector<double> faivec;
+        for (int i = 0; i < (int)processor_count; ++i) {
+            std::cout << "\n\nPerforming experiment for " << i + 1 << " cores\n\n" << std::endl;
+            std::cout << "Same number of operations by type: " << std::endl;
+            llicrwvec.push_back(same_ops_LLICRW(i));
+            llicrwncvec.push_back(same_ops_LLICRWNC(i));
+            lliccasvec.push_back(same_ops_LLICCAS(i));
+            faivec.push_back(same_ops_FAI(i));
 
+        }
+        json r_iter;
+        r_iter["RW"] = llicrwvec;
+        r_iter["RWNC"] = llicrwncvec;
+        r_iter["CAS"] = lliccasvec;
+        r_iter["FAI"] = faivec;
+        result["iter-" + std::to_string(iter)] = r_iter;
     }
-    write_to_json(llicrwvec, llicrwncvec, lliccasvec, faivec);
+    std::cout << std::setw(4) << result << std::endl;
+    std::ofstream file("results.json");
+    file << std::setw(4) << result << std::endl;
+    file.close();
 }

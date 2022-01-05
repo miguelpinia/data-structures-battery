@@ -3,6 +3,6 @@
 #include "Latency.hpp"
 
 int main() {
-    // testLLICRW();
+    experiment_time_execution(10);
     latency_experiment(10);
 }

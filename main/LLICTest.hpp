@@ -1,3 +1,3 @@
 #include "../algorithms/LLIC.hpp"
 
-void testLLICRW();
+void experiment_time_execution(int iterations);
