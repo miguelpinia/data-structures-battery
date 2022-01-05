@@ -12,6 +12,18 @@ struct alignas(64) aligned_atomic_int {
     std::atomic<int> value = 0;
 };
 
+struct alignas(16) aligned_atomic_int_16 {
+    std::atomic<int> value = 0;
+};
+
+struct alignas(32) aligned_atomic_int_32 {
+    std::atomic<int> value = 0;
+};
+
+struct alignas(128) aligned_atomic_int_128 {
+    std::atomic<int> value = 0;
+};
+
 class LLICRW
 {
 private:
@@ -27,6 +39,66 @@ public:
 };
 
 
+class LLICRW16
+{
+private:
+    aligned_atomic_int_16* M;
+    int num_processes;
+public:
+    LLICRW16();
+    LLICRW16(int n);
+    // ~LLICRW();
+    void initializeDefault(int n);
+    int LL();
+    void IC(int max_p, int process);
+};
+
+class LLICRW32
+{
+private:
+    aligned_atomic_int_32* M;
+    int num_processes;
+public:
+    LLICRW32();
+    LLICRW32(int n);
+    // ~LLICRW();
+    void initializeDefault(int n);
+    int LL();
+    void IC(int max_p, int process);
+};
+
+class LLICRW128
+{
+private:
+    aligned_atomic_int_128* M;
+    int num_processes;
+public:
+    LLICRW128();
+    LLICRW128(int n);
+    // ~LLICRW();
+    void initializeDefault(int n);
+    int LL();
+    void IC(int max_p, int process);
+};
+
+
+// Without cycle
+class LLICRWWC
+{
+private:
+    aligned_atomic_int* M;
+    int num_processes;
+public:
+    LLICRWWC();
+    LLICRWWC(int n);
+    // ~LLICRW();
+    void initializeDefault(int n);
+    int LL();
+    void IC(int max_p, int process);
+};
+
+
+// No padding
 class LLICRWNC
 {
 private:
