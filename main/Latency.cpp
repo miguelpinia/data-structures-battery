@@ -99,6 +99,8 @@ void latency_experiment(int iterations){
     const auto processor_count = std::thread::hardware_concurrency();
     std::cout << "Number of cores: " << processor_count << std::endl;
     json result;
+    result["iterations"] = iterations;
+    result["processors_num"] = processor_count;
     for (int iter = 0; iter < iterations; ++iter) {
         std::vector<long> latfai;
         std::vector<long> latlliccas;

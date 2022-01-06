@@ -11,8 +11,10 @@
 #include "nlohmann/json.hpp"
 #include "LLICTest.hpp"
 #include "utils.hpp"
+#include <random>
 
 using json = nlohmann::json;
+using namespace std::chrono_literals;
 
 //////////////////////////////////////////////////////////////////
 // Comparar implementaciones de LL/IC. Desde uno hasta el total //
@@ -198,7 +200,7 @@ void print_execution_FAI(int cores) {
 }
 
 double same_ops_LLICRW(int cores) {
-    std::cout << "Performing 500000000 of operations. Each thread do the total between #threads: Case of LL/IC RW without False Sharing" << std::endl;
+    std::cout << "Performing 500000000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW without False Sharing" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -239,7 +241,7 @@ double same_ops_LLICRW(int cores) {
 }
 
 double same_ops_LLICCAS(int cores) {
-    std::cout << "\nPerforming 500000000 of operations. Each thread do the total between #threads: Case of LL/IC CAS based " << std::endl;
+    std::cout << "\nPerforming 500000000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC CAS based " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -279,7 +281,7 @@ double same_ops_LLICCAS(int cores) {
 }
 
 double same_ops_LLICRWNC(int cores) {
-    std::cout << "\nPerforming 500000000 of operations. Each thread do the total between #threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 500000000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -320,7 +322,7 @@ double same_ops_LLICRWNC(int cores) {
 }
 
 double same_ops_FAI(int cores) {
-    std::cout << "\nPerforming 500000000 of operations. Each thread do the total between #threads: Case of Fetch&Increment" << std::endl;
+    std::cout << "\nPerforming 500000000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -332,6 +334,91 @@ double same_ops_FAI(int cores) {
     std::function<void()> func = [&]() {
         for (int i = 0; i < operations; ++i) {
             fai.fetch_add(1);
+            // Añadir delay fijo
+            // Sumar valor aleatorio
+        }
+    };
+    for (int i = 0; i < cores + 1; i++) {
+        vecOfThreads.push_back(std::thread(func));
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(i, &cpuset);
+        int rc = pthread_setaffinity_np(vecOfThreads[i].native_handle(),
+                                        sizeof(cpu_set_t), &cpuset);
+        if (rc != 0) {
+            std::cerr << "Error calling pthread_setaffinity_np: " << rc << "\n";
+        }
+    }
+    for (std::thread &th : vecOfThreads) {
+        if (th.joinable()) {
+            th.join();
+        }
+    }
+    // Finish execution
+    std::clock_t c_end = std::clock();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double duration = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+    print_time((c_end - c_start), duration, fai.load());
+    return duration;
+}
+
+double same_ops_FAI_delay(int cores) {
+    std::cout << "\nPerforming 500000000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment. (RANDOME time)" << std::endl;
+    // Measuring time
+    std::clock_t c_start = std::clock();
+    auto t_start = std::chrono::high_resolution_clock::now();
+    // Magic begins
+    std::atomic_int fai = 0;
+    std::vector<std::thread> vecOfThreads;
+    int operations = 500000000 / (cores + 1);
+    // Function to execute
+    std::function<void()> func = [&]() {
+        for (int i = 0; i < operations; ++i) {
+            fai.fetch_add(i & 1);
+        }
+    };
+    for (int i = 0; i < cores + 1; i++) {
+        vecOfThreads.push_back(std::thread(func));
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(i, &cpuset);
+        int rc = pthread_setaffinity_np(vecOfThreads[i].native_handle(),
+                                        sizeof(cpu_set_t), &cpuset);
+        if (rc != 0) {
+            std::cerr << "Error calling pthread_setaffinity_np: " << rc << "\n";
+        }
+    }
+    for (std::thread &th : vecOfThreads) {
+        if (th.joinable()) {
+            th.join();
+        }
+    }
+    // Finish execution
+    std::clock_t c_end = std::clock();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    double duration = std::chrono::duration<double, std::milli>(t_end-t_start).count();
+    print_time((c_end - c_start), duration, fai.load());
+    return duration;
+}
+
+double same_ops_FAI_random(int cores) {
+    std::cout << "\nPerforming 500000000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment (RANDOM value)" << std::endl;
+    // Measuring time
+    std::clock_t c_start = std::clock();
+    auto t_start = std::chrono::high_resolution_clock::now();
+    // Magic begins
+    std::atomic_int fai = 0;
+    std::vector<std::thread> vecOfThreads;
+    int operations = 500000000 / (cores + 1);
+    // // Function to execute
+    std::function<void()> func = [&]() {
+        std::random_device rd;  //Will be used to obtain a seed for the random number engine
+        std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+        std::uniform_int_distribution<> distrib(1, 5);
+        for (int i = 0; i < operations; ++i) {
+            fai.fetch_add(distrib(gen));
+            // Añadir delay fijo
+            // Sumar valor aleatorio
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -359,7 +446,7 @@ double same_ops_FAI(int cores) {
 }
 
 double same_ops_LLICRW16(int cores) {
-    std::cout << "Performing 500000000 of operations. Each thread do the total between #threads: Case of LL/IC RW 16bits padding without False Sharing" << std::endl;
+    std::cout << "Performing 500000000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW 16bits padding without False Sharing" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -402,7 +489,7 @@ double same_ops_LLICRW16(int cores) {
 
 
 double same_ops_LLICRW32(int cores) {
-    std::cout << "Performing 500000000 of operations. Each thread do the total between #threads: Case of LL/IC RW 32 bits padding without False Sharing" << std::endl;
+    std::cout << "Performing 500000000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW 32 bits padding without False Sharing" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -444,7 +531,7 @@ double same_ops_LLICRW32(int cores) {
 }
 
 double same_ops_LLICRW128(int cores) {
-    std::cout << "Performing 500000000 of operations. Each thread do the total between #threads: Case of LL/IC RW 128 bits padding without False Sharing" << std::endl;
+    std::cout << "Performing 500000000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW 128 bits padding without False Sharing" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -486,7 +573,7 @@ double same_ops_LLICRW128(int cores) {
 }
 
 double same_ops_LLICRWWC(int cores) {
-    std::cout << "Performing 500000000 of operations. Each thread do the total between #threads: Case of LL/IC RW Without Cycle and False Sharing" << std::endl;
+    std::cout << "Performing 500000000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW Without Cycle and False Sharing" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -533,11 +620,15 @@ void experiment_time_execution(int iterations) {
     const auto processor_count = std::thread::hardware_concurrency();
     std::cout << "Number of cores: " << processor_count << std::endl;
     json result;
+    result["iterations"] = iterations;
+    result["processors_num"] = processor_count;
     for (int iter = 0; iter < iterations; ++iter) {
         std::vector<double> llicrwvec;
         std::vector<double> llicrwncvec;
         std::vector<double> lliccasvec;
         std::vector<double> faivec;
+        std::vector<double> fairandomvec;
+        std::vector<double> faidelayvec;
         std::vector<double> llicrw16vec;
         std::vector<double> llicrw32vec;
         std::vector<double> llicrw128vec;
@@ -549,11 +640,12 @@ void experiment_time_execution(int iterations) {
             llicrwncvec.push_back(same_ops_LLICRWNC(i));
             lliccasvec.push_back(same_ops_LLICCAS(i));
             faivec.push_back(same_ops_FAI(i));
+            fairandomvec.push_back(same_ops_FAI_random(i));
+            faidelayvec.push_back(same_ops_FAI_delay(i));
             llicrw16vec.push_back(same_ops_LLICRW16(i));
             llicrw32vec.push_back(same_ops_LLICRW32(i));
             llicrw128vec.push_back(same_ops_LLICRW128(i));
             llicrwwcvec.push_back(same_ops_LLICRWWC(i));
-
         }
         json r_iter;
         r_iter["RW"] = llicrwvec;
@@ -564,6 +656,8 @@ void experiment_time_execution(int iterations) {
         r_iter["RWWC"] = llicrwwcvec;
         r_iter["CAS"] = lliccasvec;
         r_iter["FAI"] = faivec;
+        r_iter["FAIRANDOM"] = fairandomvec;
+        r_iter["FAIDELAY"] = faidelayvec;
         result["iter-" + std::to_string(iter)] = r_iter;
     }
     std::cout << std::setw(4) << result << std::endl;
