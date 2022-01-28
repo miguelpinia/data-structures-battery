@@ -374,7 +374,8 @@ long same_ops_FAI_delay(int cores) {
     // Function to execute
     std::function<void()> func = [&]() {
         for (int i = 0; i < operations; ++i) {
-            fai.fetch_add(i & 1);
+            fai.fetch_add(i);
+            for (int j = 0; j < 500; j++) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -414,7 +415,7 @@ long same_ops_FAI_random(int cores) {
     std::function<void()> func = [&]() {
         std::random_device rd;  //Will be used to obtain a seed for the random number engine
         std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-        std::uniform_int_distribution<> distrib(1, 5);
+        std::uniform_int_distribution<> distrib(1, 100);
         for (int i = 0; i < operations; ++i) {
             fai.fetch_add(distrib(gen));
             // Añadir delay fijo
