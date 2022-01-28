@@ -1,4 +1,11 @@
 #include "LLIC.hpp"
+#include <cmath>
+#include <cstdlib>
+#include <ctime>
+#include <vector>
+#include <random>
+#include <iterator>
+#include <iostream>
 
 LLICCAS::LLICCAS() {}
 
@@ -238,4 +245,88 @@ void LLICRWNC::IC(int max_p, int process) {
         M[process].store(max_p + 1);
     }
 
+}
+
+//////////////////
+// New Solution //
+//////////////////
+
+template<typename Iter, typename RandomGenerator>
+Iter select_randomly(Iter start, Iter end, RandomGenerator& g) {
+    std::uniform_int_distribution<> dis(0, std::distance(start, end) - 1);
+    std::advance(start, dis(g));
+    return start;
+}
+
+template<typename Iter>
+Iter select_randomly(Iter start, Iter end) {
+    static std::random_device rd;
+    static std::mt19937 gen(rd());
+    return select_randomly(start, end, gen);
+}
+
+int get_random_from_range(int begin, int end, int exclude)
+{
+    std::vector<int> range;
+    for (int i = begin; i < end; i++) {
+        if (i != exclude) {
+            range.push_back(i);
+        }
+    }
+
+    return *select_randomly(range.begin(), range.end());
+}
+
+
+LLICRWNewSol::LLICRWNewSol() {}
+
+LLICRWNewSol::LLICRWNewSol(int n) : num_processes(n)
+{
+    size = (int) std::sqrt(n);
+    M = new std::atomic<int>[size];
+    for (int i = 0; i < size; i++) {
+        M[i] = 0;
+    }
+}
+
+void LLICRWNewSol::initializeDefault(int n)
+{
+    size = (int) std::sqrt(n);
+    M = new std::atomic<int>[size];
+    for (int i = 0; i < size; i++) {
+        M[i] = 0;
+    }
+}
+
+int LLICRWNewSol::LL(int max_p, int& ind_max_p)
+{
+    max_p = -1;
+    for (int i = 0; i < size; i++) {
+        int x = M[i].load();
+        if (x > max_p) {
+            max_p = x;
+            ind_max_p = i;
+        }
+    }
+    return max_p;
+}
+
+bool LLICRWNewSol::IC(int max_p, int ind_max_p)
+{
+    int pos = -1;
+    if (size < 2) {
+        pos = 0;
+    } else {
+        pos = get_random_from_range(0, size, ind_max_p);
+    }
+    int x = M[pos];
+    if (x < max_p + 1) {
+        if (M[pos].compare_exchange_strong(x, max_p + 1)) {
+            return true;
+        }
+    }
+    if (M[ind_max_p] == max_p) {
+        M[ind_max_p].compare_exchange_strong(max_p, max_p + 1);
+    }
+    return true;
 }
