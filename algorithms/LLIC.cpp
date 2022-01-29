@@ -51,7 +51,7 @@ void LLICRW::IC(int max_p, int process) {
     int maximum = 0;
     int tmp;
     for(int i = 0; i < num_processes; i++) {
-        tmp = M[i].value;
+        tmp = M[i].value.load();
         if (tmp > maximum) maximum = tmp;
     }
     if (maximum == max_p) {
@@ -91,7 +91,7 @@ void LLICRW16::IC(int max_p, int process) {
     int maximum = 0;
     int tmp;
     for(int i = 0; i < num_processes; i++) {
-        tmp = M[i].value;
+        tmp = M[i].value.load();
         if (tmp > maximum) maximum = tmp;
     }
     if (maximum == max_p) {
@@ -130,7 +130,7 @@ void LLICRW32::IC(int max_p, int process) {
     int maximum = 0;
     int tmp;
     for(int i = 0; i < num_processes; i++) {
-        tmp = M[i].value;
+        tmp = M[i].value.load();
         if (tmp > maximum) maximum = tmp;
     }
     if (maximum == max_p) {
@@ -169,7 +169,7 @@ void LLICRW128::IC(int max_p, int process) {
     int maximum = 0;
     int tmp;
     for(int i = 0; i < num_processes; i++) {
-        tmp = M[i].value;
+        tmp = M[i].value.load();
         if (tmp > maximum) maximum = tmp;
     }
     if (maximum == max_p) {
@@ -209,6 +209,10 @@ void LLICRWWC::IC(int max_p, int process) {
 }
 
 
+/////////////////////
+// Without padding //
+/////////////////////
+
 LLICRWNC::LLICRWNC() {}
 
 LLICRWNC::LLICRWNC(int n): num_processes(n)
@@ -229,17 +233,20 @@ void LLICRWNC::initializeDefault(int n) {
 
 int LLICRWNC::LL() {
     int max_p = 0;
+    int tmp;
     for(int i = 0; i < num_processes; i++) {
-        if (M[i] >= max_p)
-            max_p = M[i].load();
+        tmp = M[i].load();
+        if (tmp >= max_p) max_p = tmp;
     }
     return max_p;
 }
 
 void LLICRWNC::IC(int max_p, int process) {
     int maximum = 0;
+    int tmp;
     for(int i = 0; i < num_processes; i++) {
-        if (M[i] > maximum) maximum = M[i];
+        tmp = M[i].load();
+        if (tmp > maximum) maximum = tmp;
     }
     if (maximum == max_p) {
         M[process].store(max_p + 1);
@@ -301,8 +308,9 @@ void LLICRWNewSol::initializeDefault(int n)
 int LLICRWNewSol::LL(int max_p, int& ind_max_p)
 {
     max_p = -1;
+    int x;
     for (int i = 0; i < size; i++) {
-        int x = M[i].load();
+        x = M[i].load();
         if (x > max_p) {
             max_p = x;
             ind_max_p = i;
