@@ -127,6 +127,20 @@ public:
     bool IC(int max_p, int ind_max_p);
 };
 
+class LLICRWNewSolRandom
+{
+private:
+    std::atomic<int>* M;
+    int num_processes;
+    int size;
+public:
+    LLICRWNewSolRandom();
+    LLICRWNewSolRandom(int n);
+    void initializeDefault(int n);
+    int LL(int max_p, int& ind_max_p);
+    bool IC(int max_p, int ind_max_p);
+};
+
 class LLICCAS
 {
 private:

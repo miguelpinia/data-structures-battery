@@ -338,3 +338,62 @@ bool LLICRWNewSol::IC(int max_p, int ind_max_p)
     }
     return true;
 }
+
+//////////////////////////////////////////////////
+// Solution without use restrictive randomness; //
+//////////////////////////////////////////////////
+
+LLICRWNewSolRandom::LLICRWNewSolRandom() {}
+
+LLICRWNewSolRandom::LLICRWNewSolRandom(int n) : num_processes(n)
+{
+    std::srand (std::time(NULL));
+    size = (int) std::sqrt(n);
+    M = new std::atomic<int>[size];
+    for (int i = 0; i < size; i++) {
+        M[i] = 0;
+    }
+}
+
+void LLICRWNewSolRandom::initializeDefault(int n)
+{
+    size = (int) std::sqrt(n);
+    M = new std::atomic<int>[size];
+    for (int i = 0; i < size; i++) {
+        M[i] = 0;
+    }
+}
+
+int LLICRWNewSolRandom::LL(int max_p, int& ind_max_p)
+{
+    max_p = -1;
+    int x;
+    for (int i = 0; i < size; i++) {
+        x = M[i].load();
+        if (x > max_p) {
+            max_p = x;
+            ind_max_p = i;
+        }
+    }
+    return max_p;
+}
+
+bool LLICRWNewSolRandom::IC(int max_p, int ind_max_p)
+{
+    int pos = -1;
+    if (size < 2) {
+        pos = 0;
+    } else {
+        pos = rand() % size;
+    }
+    int x = M[pos];
+    if (x < max_p + 1) {
+        if (M[pos].compare_exchange_strong(x, max_p + 1)) {
+            return true;
+        }
+    }
+    if (M[ind_max_p] == max_p) {
+        M[ind_max_p].compare_exchange_strong(max_p, max_p + 1);
+    }
+    return true;
+}

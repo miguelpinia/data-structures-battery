@@ -662,6 +662,49 @@ long same_ops_LLICRWNewSol(int cores) {
 }
 
 
+long same_ops_LLICRWNewSolRandom(int cores) {
+    std::cout << "\nPerforming 5'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW New Solution Without restrictive randomness" << std::endl;
+    // Measuring time
+    std::clock_t c_start = std::clock();
+    auto t_start = std::chrono::high_resolution_clock::now();
+    // Magic begins
+    LLICRWNewSolRandom llic(cores + 1);
+    int operations = 5'000'000 / (cores + 1);
+    std::vector<std::thread> vecOfThreads;
+    std::function<void()> func = [&]() {
+        int max_p = 0;
+        int ind_max_p = 0;
+        for (int i = 0; i < operations; ++i) {
+            max_p = llic.LL(max_p, ind_max_p);
+            llic.IC(max_p, ind_max_p);
+        }
+    };
+    for (int i = 0; i < cores + 1; i++) {
+        vecOfThreads.push_back(std::thread(func));
+        // https://eli.thegreenplace.net/2016/c11-threads-affinity-and-hyperthreading/
+        cpu_set_t cpuset;
+        CPU_ZERO(&cpuset);
+        CPU_SET(i, &cpuset);
+        int rc = pthread_setaffinity_np(vecOfThreads[i].native_handle(),
+                                        sizeof(cpu_set_t), &cpuset);
+        if (rc != 0) {
+            std::cerr << "Error calling pthread_setaffinity_np: " << rc << "\n";
+        }
+    }
+    for (std::thread &th : vecOfThreads) {
+        if (th.joinable()) {
+            th.join();
+        }
+    }
+    // Finish execution
+    int fake_ind_max_p = 0;
+    std::clock_t c_end = std::clock();
+    auto t_end = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
+    print_time((c_end - c_start), duration, llic.LL(0, fake_ind_max_p));
+    return duration;
+}
+
 void experiment_time_execution(int iterations) {
     std::cout << "Testing LL/IC" << std::endl;
     const auto processor_count = std::thread::hardware_concurrency();
@@ -681,6 +724,7 @@ void experiment_time_execution(int iterations) {
         std::vector<long> llicrw128vec;
         std::vector<long> llicrwwcvec;
         std::vector<long> llicrwns;
+        std::vector<long> llicrwnsr;
         for (int i = 0; i < (int)processor_count; ++i) {
             std::cout << "\n\nPerforming experiment for " << i + 1 << " cores\n\n" << std::endl;
             std::cout << "Same number of operations by type: " << std::endl;
@@ -695,6 +739,7 @@ void experiment_time_execution(int iterations) {
             llicrw128vec.push_back(same_ops_LLICRW128(i));
             llicrwwcvec.push_back(same_ops_LLICRWWC(i));
             llicrwns.push_back(same_ops_LLICRWNewSol(i));
+            llicrwnsr.push_back(same_ops_LLICRWNewSolRandom(i));
         }
         json r_iter;
         r_iter["RW"] = llicrwvec;
@@ -708,6 +753,7 @@ void experiment_time_execution(int iterations) {
         r_iter["FAIRANDOM"] = fairandomvec;
         r_iter["FAIDELAY"] = faidelayvec;
         r_iter["RWNS"] = llicrwns;
+        r_iter["RWNSR"] = llicrwnsr;
         result["iter-" + std::to_string(iter)] = r_iter;
     }
     std::cout << std::setw(4) << result << std::endl;
