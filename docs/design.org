@@ -126,3 +126,7 @@
    fact that all operations performed have not any task associated, i.e. there
    are not work to do when the values/objects are inserted/extracted in the data
    structure. Just is insert and extract dummy values.
+
+** LL/IC experiments
+
+   Due to the design of the modular basket queue

@@ -97,6 +97,20 @@ public:
     void IC(int max_p, int process);
 };
 
+// Without cycle
+class LLICRWWCNP
+{
+private:
+    std::atomic<int>* M;
+    int num_processes;
+public:
+    LLICRWWCNP();
+    LLICRWWCNP(int n);
+    // ~LLICRW();
+    void initializeDefault(int n);
+    int LL();
+    void IC(int max_p, int process);
+};
 
 // No padding
 class LLICRWNC
@@ -113,18 +127,32 @@ public:
     void IC(int max_p, int process);
 };
 
-class LLICRWNewSol
+class LLICRWSQRT
 {
 private:
     std::atomic<int>* M;
     int num_processes;
     int size;
 public:
-    LLICRWNewSol();
-    LLICRWNewSol(int n);
+    LLICRWSQRT();
+    LLICRWSQRT(int n);
     void initializeDefault(int n);
-    int LL(int max_p, int& ind_max_p);
-    bool IC(int max_p, int ind_max_p);
+    int LL(int& ind_max_p);
+    bool IC(int max_p, int ind_max_p, int thread_id);
+};
+
+class LLICRWSQRTFS
+{
+private:
+    aligned_atomic_int* M;
+    int num_processes;
+    int size;
+public:
+    LLICRWSQRTFS();
+    LLICRWSQRTFS(int n);
+    void initializeDefault(int n);
+    int LL(int& ind_max_p);
+    bool IC(int max_p, int ind_max_p, int thread_id);
 };
 
 class LLICRWNewSolRandom
@@ -138,7 +166,7 @@ public:
     LLICRWNewSolRandom(int n);
     void initializeDefault(int n);
     int LL(int max_p, int& ind_max_p);
-    bool IC(int max_p, int ind_max_p);
+    bool IC(int max_p, int ind_max_p, int thread_id);
 };
 
 class LLICCAS

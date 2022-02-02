@@ -209,6 +209,34 @@ void LLICRWWC::IC(int max_p, int process) {
 }
 
 
+LLICRWWCNP::LLICRWWCNP() {}
+
+LLICRWWCNP::LLICRWWCNP(int n): num_processes(n)
+{
+    M = new std::atomic<int>[num_processes];
+    for (int i = 0; i < n; i++) M[i] = 0;
+}
+
+void LLICRWWCNP::initializeDefault(int n) {
+    num_processes = n;
+    M = new std::atomic<int>[num_processes];
+    for (int i = 0; i < n; i++) M[i] = 0;
+}
+
+int LLICRWWCNP::LL() {
+    int max_p = 0;
+    int tmp;
+    for(int i = 0; i < num_processes; i++) {
+        tmp = M[i].load();
+        if (tmp >= max_p) max_p = tmp;
+    }
+    return max_p;
+}
+
+void LLICRWWCNP::IC(int max_p, int process) {
+    M[process].store(max_p + 1);
+}
+
 /////////////////////
 // Without padding //
 /////////////////////
@@ -285,9 +313,9 @@ int get_random_from_range(int begin, int end, int exclude)
 }
 
 
-LLICRWNewSol::LLICRWNewSol() {}
+LLICRWSQRT::LLICRWSQRT() {}
 
-LLICRWNewSol::LLICRWNewSol(int n) : num_processes(n)
+LLICRWSQRT::LLICRWSQRT(int n) : num_processes(n)
 {
     size = (int) std::sqrt(n);
     M = new std::atomic<int>[size];
@@ -296,7 +324,7 @@ LLICRWNewSol::LLICRWNewSol(int n) : num_processes(n)
     }
 }
 
-void LLICRWNewSol::initializeDefault(int n)
+void LLICRWSQRT::initializeDefault(int n)
 {
     size = (int) std::sqrt(n);
     M = new std::atomic<int>[size];
@@ -305,9 +333,9 @@ void LLICRWNewSol::initializeDefault(int n)
     }
 }
 
-int LLICRWNewSol::LL(int max_p, int& ind_max_p)
+int LLICRWSQRT::LL(int& ind_max_p)
 {
-    max_p = -1;
+    int max_p = -1;
     int x;
     for (int i = 0; i < size; i++) {
         x = M[i].load();
@@ -319,13 +347,16 @@ int LLICRWNewSol::LL(int max_p, int& ind_max_p)
     return max_p;
 }
 
-bool LLICRWNewSol::IC(int max_p, int ind_max_p)
+bool LLICRWSQRT::IC(int max_p, int ind_max_p, int thread_i)
 {
     int pos = -1;
     if (size < 2) {
         pos = 0;
     } else {
-        pos = get_random_from_range(0, size, ind_max_p);
+
+        pos = (ind_max_p + max_p + thread_i) % size; // sumar el índice del hilo
+        if (pos == ind_max_p)
+            pos = (pos + 1) % size;
     }
     int x = M[pos];
     if (x < max_p + 1) {
@@ -338,6 +369,60 @@ bool LLICRWNewSol::IC(int max_p, int ind_max_p)
     }
     return true;
 }
+
+
+LLICRWSQRTFS::LLICRWSQRTFS() {}
+
+LLICRWSQRTFS::LLICRWSQRTFS(int n) : num_processes(n)
+{
+    size = (int) std::sqrt(n);
+    M = new aligned_atomic_int[size];
+}
+
+void LLICRWSQRTFS::initializeDefault(int n)
+{
+    size = (int) std::sqrt(n);
+    M = new aligned_atomic_int[size];
+}
+
+int LLICRWSQRTFS::LL(int& ind_max_p)
+{
+    int max_p = -1;
+    int x;
+    for (int i = 0; i < size; i++) {
+        x = M[i].value.load();
+        if (x > max_p) {
+            max_p = x;
+            ind_max_p = i;
+        }
+    }
+    return max_p;
+}
+
+bool LLICRWSQRTFS::IC(int max_p, int ind_max_p, int thread_i)
+{
+    int pos = -1;
+    if (size < 2) {
+        pos = 0;
+    } else {
+
+        pos = (ind_max_p + max_p + thread_i) % size; // sumar el índice del hilo
+        if (pos == ind_max_p)
+            pos = (pos + 1) % size;
+    }
+    int x = M[pos].value.load();
+    if (x < max_p + 1) {
+        if (M[pos].value.compare_exchange_strong(x, max_p + 1)) {
+            return true;
+        }
+    }
+    if (M[ind_max_p].value == max_p) {
+        M[ind_max_p].value.compare_exchange_strong(max_p, max_p + 1);
+    }
+    return true;
+}
+
+
 
 //////////////////////////////////////////////////
 // Solution without use restrictive randomness; //
@@ -378,13 +463,16 @@ int LLICRWNewSolRandom::LL(int max_p, int& ind_max_p)
     return max_p;
 }
 
-bool LLICRWNewSolRandom::IC(int max_p, int ind_max_p)
+bool LLICRWNewSolRandom::IC(int max_p, int ind_max_p, int thread_i)
 {
     int pos = -1;
     if (size < 2) {
         pos = 0;
     } else {
-        pos = rand() % size;
+        // pos = rand() % size;
+        pos = (ind_max_p + max_p + thread_i) % size; // sumar el índice del hilo
+        if (pos == ind_max_p)
+            pos = (pos + 1) % size;
     }
     int x = M[pos];
     if (x < max_p + 1) {
