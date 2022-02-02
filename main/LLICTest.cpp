@@ -46,9 +46,12 @@ long same_ops_FAI_delay(int cores) {
     int operations = 5'000'000 / (cores + 1);
     // Function to execute
     std::function<void()> func = [&]() {
+        std::random_device rd;  //Will be used to obtain a seed for the random number engine
+        std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
+        std::uniform_int_distribution<> distrib(1, 5);
         for (int i = 0; i < operations; ++i) {
             fai.fetch_add(i);
-            for (int j = 0; j < 64; j++);
+            for (int j = 0; j < 30; j = j + distrib(gen));
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -84,11 +87,14 @@ long same_ops_LLICCAS(int cores) {
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void()> func = [&]() {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, 5);
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max);
-            for (int j = 0; j < 64; j++);
+            for (int j = 0; j < 30; j = j + distrib(gen));
         }
     };
 
@@ -126,11 +132,14 @@ long same_ops_LLICRW(int cores) {
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&](int processID) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, 5);
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max, processID);
-            for(int j = 0; j < 64; j++);
+            for(int j = 0; j < 30; j = j + distrib(gen));
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -169,11 +178,14 @@ long same_ops_LLICRWNC(int cores) {
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&](int processID) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, 5);
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max, processID);
-            for (int j = 0; j < 64; j++);
+            for (int j = 0; j < 30; j = distrib(gen));
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -210,12 +222,15 @@ long same_ops_LLICRW_SQRT(int cores) {
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&](int processID) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, 5);
         int max_p = 0;
         int ind_max_p = 0;
         for (int i = 0; i < operations; ++i) {
             max_p = llic.LL(ind_max_p);
             llic.IC(max_p, ind_max_p, processID);
-            for (int j = 0; j < 64; j++);
+            for (int j = 0; j < 30; distrib(gen));
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -254,12 +269,15 @@ long same_ops_LLICRW_SQRT_FS(int cores) {
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&](int processID) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, 5);
         int max_p = 0;
         int ind_max_p = 0;
         for (int i = 0; i < operations; ++i) {
             max_p = llic.LL(ind_max_p);
             llic.IC(max_p, ind_max_p, processID);
-            for (int j = 0; j < 64; j++);
+            for (int j = 0; j < 30; j = j + distrib(gen));
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -299,11 +317,14 @@ long same_ops_LLICRWWC(int cores) {
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&](int processID) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, 5);
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max, processID);
-            for (int j = 0; j < 64; j++);
+            for (int j = 0; j < 30; j = j + distrib(gen));
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -342,11 +363,14 @@ long same_ops_LLICRWWCNP(int cores) {
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     std::function<void(int)> func = [&](int processID) {
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> distrib(1, 5);
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max, processID);
-            for (int j = 0; j < 64; j++);
+            for (int j = 0; j < 30; j = j + distrib(gen));
         }
     };
     for (int i = 0; i < cores + 1; i++) {
