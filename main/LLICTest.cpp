@@ -36,7 +36,7 @@ using namespace std::chrono_literals;
 //////////////////////////////////////////////////////////
 
 long same_ops_FAI_delay(int cores) {
-    std::cout << "\nPerforming 5'000'000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment. (RANDOM time)" << std::endl;
+    std::cout << "\nPerforming 5'000'000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment. (with delay)" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -50,8 +50,8 @@ long same_ops_FAI_delay(int cores) {
         std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
         std::uniform_int_distribution<> distrib(1, 5);
         for (int i = 0; i < operations; ++i) {
-            fai.fetch_add(i);
-            for (int j = 0; j < 30; j = j + distrib(gen));
+            fai.fetch_add(1);
+            for (int j = 0; j < 50; j = j + distrib(gen)) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -94,7 +94,7 @@ long same_ops_LLICCAS(int cores) {
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max);
-            for (int j = 0; j < 30; j = j + distrib(gen));
+            for (int j = 0; j < 50; j = j + distrib(gen)) {}
         }
     };
 
@@ -139,7 +139,7 @@ long same_ops_LLICRW(int cores) {
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max, processID);
-            for(int j = 0; j < 30; j = j + distrib(gen));
+            for(int j = 0; j < 50; j = j + distrib(gen)) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -185,7 +185,7 @@ long same_ops_LLICRWNC(int cores) {
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max, processID);
-            for (int j = 0; j < 30; j = distrib(gen));
+            for (int j = 0; j < 50; j = j + distrib(gen)) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -230,7 +230,7 @@ long same_ops_LLICRW_SQRT(int cores) {
         for (int i = 0; i < operations; ++i) {
             max_p = llic.LL(ind_max_p);
             llic.IC(max_p, ind_max_p, processID);
-            for (int j = 0; j < 30; distrib(gen));
+            for (int j = 0; j < 50; j = j + distrib(gen)) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -277,7 +277,7 @@ long same_ops_LLICRW_SQRT_FS(int cores) {
         for (int i = 0; i < operations; ++i) {
             max_p = llic.LL(ind_max_p);
             llic.IC(max_p, ind_max_p, processID);
-            for (int j = 0; j < 30; j = j + distrib(gen));
+            for (int j = 0; j < 50; j = j + distrib(gen)) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -324,7 +324,7 @@ long same_ops_LLICRWWC(int cores) {
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max, processID);
-            for (int j = 0; j < 30; j = j + distrib(gen));
+            for (int j = 0; j < 50; j = j + distrib(gen)) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -370,7 +370,7 @@ long same_ops_LLICRWWCNP(int cores) {
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
             llic.IC(max, processID);
-            for (int j = 0; j < 30; j = j + distrib(gen));
+            for (int j = 0; j < 50; j = j + distrib(gen)) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -430,12 +430,12 @@ void experiment_time_execution(int iterations) {
         json r_iter;
         r_iter["FAIDELAY"] = faidelayvec;
         r_iter["CAS"] = lliccasvec;
-        r_iter["RW"] = llicrwvec;
-        r_iter["RWNC"] = llicrwncvec;
-        r_iter["RWSQRT"] = llicrwsqrtvec;
-        r_iter["RWSQRTFS"] = llicrwsqrtfsvec;
-        r_iter["RWWC"] = llicrwwcvec;
-        r_iter["RWWCNP"] = llicrwwcnpvec;
+        r_iter["RW"] = llicrwvec; // Without false sharing
+        r_iter["RWNC"] = llicrwncvec; // With false sharing
+        r_iter["RWSQRT"] = llicrwsqrtvec; // With false sharing
+        r_iter["RWSQRTFS"] = llicrwsqrtfsvec; // Without false sharing
+        r_iter["RWWC"] = llicrwwcvec; // Without false sharing
+        r_iter["RWWCNP"] = llicrwwcnpvec; // With false sharing
         result["iter-" + std::to_string(iter)] = r_iter;
     }
     std::cout << std::setw(4) << result << std::endl;
