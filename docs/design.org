@@ -3,6 +3,23 @@
 #+date: [2021-12-15 mié 17:30]
 
 
+* Experiments
+
+  The three proposed LL/IC implementation were evaluated, and an implementation
+  where the processes perfom FAI over the same register. The later
+  implementation was considered as the best concurrent queues manipulate the
+  head using FAI.
+  In the LL/IC implementation, each thread calls a LL followed by IC, and then a
+  work of some length is executed to avoid artificial long run escenarios. This
+  work is basically a cycle with random increments, one to five, where the limit
+  of the cycle is a small number, concretely 50 in the experiment. It was
+  measured the time it took each process to complete $5\cdot10^6$ interspersed
+  LL and IC, with a respective random work; similarly in the FAI implementation,
+  each thread performed $5\cdot 10^6$ FAIs with random work.
+
+
+
+
 * Package diagram
 
   The next diagram shows in a general form the organization in packages of this
