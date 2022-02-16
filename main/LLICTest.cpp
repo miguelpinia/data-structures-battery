@@ -46,11 +46,14 @@ long same_ops_FAI_delay(int cores) {
     std::atomic_int fai = 0;
     std::vector<std::thread> vecOfThreads;
     int operations = 5'000'000 / (cores + 1);
+    auto wait_for_begin = []() noexcept {};
+    std::barrier sync_point(cores + 1, wait_for_begin);
     // Function to execute
     std::function<void()> func = [&]() {
         std::random_device rd;  //Will be used to obtain a seed for the random number engine
         std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
         std::uniform_int_distribution<> distrib(1, 5);
+        sync_point.arrive_and_wait();
         for (int i = 0; i < operations; ++i) {
             fai.fetch_add(1);
             for (int j = 0; j < 50; j = j + distrib(gen)) {}
@@ -89,10 +92,13 @@ long same_ops_LLICCAS(int cores) {
     LLICCAS llic;
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
+    auto wait_for_begin = []() noexcept {};
+    std::barrier sync_point(cores + 1, wait_for_begin);
     std::function<void()> func = [&]() {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distrib(1, 5);
+        sync_point.arrive_and_wait();
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
@@ -136,10 +142,13 @@ long same_ops_LLICRWNC(int cores) {
     llic.initializeDefault(cores + 1);
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
+    auto wait_for_begin = []() noexcept {};
+    std::barrier sync_point(cores + 1, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distrib(1, 5);
+        sync_point.arrive_and_wait();
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
@@ -179,13 +188,16 @@ long same_ops_LLICRW_SQRT(int cores) {
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWSQRT llic(cores + 1);
+    LLICRWSQRT llic();
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
+    auto wait_for_begin = []() noexcept {};
+    std::barrier sync_point(cores + 1, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distrib(1, 5);
+        sync_point.arrive_and_wait();
         int max_p = 0;
         int ind_max_p = 0;
         for (int i = 0; i < operations; ++i) {

@@ -313,7 +313,13 @@ int get_random_from_range(int begin, int end, int exclude)
 }
 
 
-LLICRWSQRT::LLICRWSQRT() {}
+LLICRWSQRT::LLICRWSQRT() {
+    size = 2;
+    M = new std::atomic<int>[2];
+    for (int i = 0; i < size; i++) {
+        M[i] = 0;
+    }
+}
 
 LLICRWSQRT::LLICRWSQRT(int n) : num_processes(n)
 {
