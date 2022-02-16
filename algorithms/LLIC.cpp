@@ -353,7 +353,6 @@ bool LLICRWSQRT::IC(int max_p, int ind_max_p, int thread_i)
     if (size < 2) {
         pos = 0;
     } else {
-
         pos = (ind_max_p + max_p + thread_i) % size; // sumar el índice del hilo
         if (pos == ind_max_p)
             pos = (pos + 1) % size;

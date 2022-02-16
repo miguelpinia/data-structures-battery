@@ -3,6 +3,6 @@
 #include "Latency.hpp"
 
 int main() {
-    experiment_time_execution(30);
-    latency_experiment(30);
+    experiment_time_execution(5);
+    latency_experiment(5);
 }
