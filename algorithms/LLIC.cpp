@@ -363,7 +363,7 @@ bool LLICRWSQRT::IC(int max_p, int ind_max_p, int thread_i)
         if (pos == ind_max_p)
             pos = (pos + 1) % size;
     }
-    int x = M[pos];
+    int x = M[pos].load();
     if (x < max_p + 1) {
         if (M[pos].compare_exchange_strong(x, max_p + 1)) {
             return true;
@@ -376,7 +376,10 @@ bool LLICRWSQRT::IC(int max_p, int ind_max_p, int thread_i)
 }
 
 
-LLICRWSQRTFS::LLICRWSQRTFS() {}
+LLICRWSQRTFS::LLICRWSQRTFS() {
+    size = 2;
+    M = new aligned_atomic_int[size];
+}
 
 LLICRWSQRTFS::LLICRWSQRTFS(int n) : num_processes(n)
 {
@@ -410,7 +413,6 @@ bool LLICRWSQRTFS::IC(int max_p, int ind_max_p, int thread_i)
     if (size < 2) {
         pos = 0;
     } else {
-
         pos = (ind_max_p + max_p + thread_i) % size; // sumar el índice del hilo
         if (pos == ind_max_p)
             pos = (pos + 1) % size;

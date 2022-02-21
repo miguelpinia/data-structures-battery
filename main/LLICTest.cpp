@@ -138,8 +138,9 @@ long same_ops_LLICRWNC(int cores) {
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWNC llic;
-    llic.initializeDefault(cores + 1);
+    LLICRWNC llic(cores + 1);
+    // LLICRW llic;
+    // llic.initializeDefault(cores + 1);
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
@@ -188,7 +189,8 @@ long same_ops_LLICRW_SQRT(int cores) {
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWSQRT llic();
+    LLICRWSQRT llic;
+    // LLICRWSQRTFS llic;
     int operations = 5'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
