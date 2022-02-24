@@ -3,21 +3,38 @@
 #+date: [2021-12-15 mié 17:30]
 
 
-* Experiments
+* Theory
 
-  The three proposed LL/IC implementation were evaluated, and an implementation
-  where the processes perfom FAI over the same register. The later
-  implementation was considered as the best concurrent queues manipulate the
-  head using FAI.
-  In the LL/IC implementation, each thread calls a LL followed by IC, and then a
-  work of some length is executed to avoid artificial long run escenarios. This
-  work is basically a cycle with random increments, one to five, where the limit
-  of the cycle is a small number, concretely 50 in the experiment. It was
-  measured the time it took each process to complete $5\cdot10^6$ interspersed
-  LL and IC, with a respective random work; similarly in the FAI implementation,
-  each thread performed $5\cdot 10^6$ FAIs with random work.
+** What about caches?
+
+   - [[https://www.extremetech.com/extreme/188776-how-l1-and-l2-cpu-caches-work-and-why-theyre-an-essential-part-of-modern-chips][How cpu caches work and why they're an essential part of modern chips.]]
+   - [[https://en.wikichip.org/wiki/amd/microarchitectures/zen][Zen Microarchitecture]]
+   - [[https://www.extremetech.com/computing/301665-amds-16-core-ryzen-9-3950x-32-core-threadripper-3970x-available-november-25][Technical details about AMD Threadripper 3970X]]
+   - [[https://www.baeldung.com/java-false-sharing-contended][False Sharing in Java]]
 
 
+** Definitions
+
+   - Thread safe ::
+
+
+** CPP
+
+
+*** Videos
+
+    - [[https://www.youtube.com/watch?v=F6Ipn7gCOsY][Back to basics: Concurrency - CppCon2020]]
+    - [[https://www.youtube.com/watch?v=KJW_DLaVXIY][Deprecating volatile - JF Bastien - CppCon 2019]]
+
+
+*** Links
+
+    - [[https://hackingcpp.com/cpp/cheat_sheets.html][Cpp Cheatsheets]]
+
+** Interesting resources
+
+   - [[https://objectcomputing.com/resources/publications/sett/september-2009-software-transactional-memory][Software transactional memory]]
+   - [[https://www.braveclojure.com/concurrency/#:~:text=Concurrency%20refers%20to%20a%20program's,executed%20at%20the%20same%20time.][The sacred art of concurrent and parellel programming (clojure)]]
 
 
 * Package diagram
@@ -146,4 +163,70 @@
 
 ** LL/IC experiments
 
-   Due to the design of the modular basket queue
+
+   The three proposed LL/IC implementation were evaluated, and an implementation
+   where the processes perfom FAI over the same register. The later
+   implementation was considered as the best concurrent queues manipulate the
+   head using FAI.
+   In the LL/IC implementation, each thread calls a LL followed by IC, and then
+   a work of some length is executed to avoid artificial long run
+   escenarios. This work is basically a cycle with random increments, one to
+   five, where the limit of the cycle is a small number, concretely 50 in the
+   experiment. It was measured the time it took each process to complete
+   $5\cdot10^6$ interspersed LL and IC, with a respective random work; similarly
+   in the FAI implementation, each thread performed $5\cdot 10^6$ FAIs with
+   random work.
+
+
+** Work-Stealing
+
+*** What to build?
+
+**** Algorithms of work-stealing
+
+     We will test in C++ the following algorithms
+
+     - [ ] Cilk THE
+     - [ ] Chase-Lev
+     - [ ] FIFO Idempotent Work-Stealing
+     - [ ] LIFO Idempotent Work-Stealing
+     - [ ] DEQUE Idempotent Work-Stealing
+     - [ ] WS-WMULT
+     - [ ] B-WS-WMULT
+
+
+**** Zero cost experiments
+
+     In this experiment, we will analyze the time performed of execute pairs of
+     Put and Take, also as Put and Steal operations. The goal of this experiment
+     it is observe and study the behaviour of the operations when there is no
+     work associated to a task. These executions it is assumed are executed in
+     one processor, i.e. it is a sequential execution. The number of PUT
+     operations is 10,000,000 followed by the same number of TAKEs or STEALs, as
+     the case may be.
+
+
+**** Irregular graph application
+
+     We consider the ppspanning-tree problem to evaluate the performance of each
+     algorithm. It is measured the speed-up of the computation by the parallel
+     exploration of the input graph. This problem was used in
+     [[[cite:&maged.vechev.2009]], [[cite:&fencefreeworkproceedings]]] to evaluate their
+     work-stealing algorithms. We refer the reader to [[[cite:&1302951]]] for a
+     detailed description of the algorithm.
+
+
+**** What should be coded?
+
+     - [ ] Algorithms of work-stealing
+     - [ ] Spanning tree algorithm in a modular way
+     - [ ] Zero cost experiments in a modular way
+
+
+**** What should be imported?
+
+     - [ ] [[https://www.boost.org/doc/libs/1_78_0/libs/graph/doc/index.html][Graphs frameworks]] (or [[https://lemon.cs.elte.hu/trac/lemon][this]])
+     - [ ] Simple data-structures (Queue, Stack and Array)
+     - [ ] Memory management frameworks
+     - [ ] JSON support for I/O
+     - [ ] Some "[[https://github.com/Dobiasd/FunctionalPlus][Functional Framework]]" for data manipulation
