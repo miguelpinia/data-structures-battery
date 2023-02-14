@@ -38,25 +38,25 @@ using namespace std::chrono_literals;
 ////////////////////////////////////////////////////////////
 
 long same_ops_FAI_delay(int cores) {
-    std::cout << "\nPerforming 5'000'000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment. (with delay)" << std::endl;
+    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment. (with delay)" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     std::atomic_int fai = 0;
     std::vector<std::thread> vecOfThreads;
-    int operations = 5'000'000 / (cores + 1);
+    int operations = 20'000'000 / (cores + 1);
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
     // Function to execute
     std::function<void()> func = [&]() {
         std::random_device rd;  //Will be used to obtain a seed for the random number engine
         std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
-        std::uniform_int_distribution<> distrib(1, 5);
+        std::uniform_int_distribution<> distrib(1, 3);
         sync_point.arrive_and_wait();
         for (int i = 0; i < operations; ++i) {
             fai.fetch_add(1);
-            for (int j = 0; j < 50; j = j + distrib(gen)) {}
+            for (int j = 0; j < 80; j = j + distrib(gen)) {}
         }
     };
     for (int i = 0; i < cores + 1; i++) {
@@ -85,26 +85,26 @@ long same_ops_FAI_delay(int cores) {
 
 
 long same_ops_LLICCAS(int cores) {
-    std::cout << "\nPerforming 5'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC CAS based " << std::endl;
+    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC CAS based " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     LLICCAS llic;
-    int operations = 5'000'000 / (cores + 1);
+    int operations = 20'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
     std::function<void()> func = [&]() {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(1, 5);
+        std::uniform_int_distribution<> distrib(1, 3);
         sync_point.arrive_and_wait();
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
-            for (int j = 0; j < 25; j = j + distrib(gen)) {}
+            for (int j = 0; j < 40; j = j + distrib(gen)) {}
             llic.IC(max);
-            for (int j = 0; j < 25; j = j + distrib(gen)) {}
+            for (int j = 0; j < 40; j = j + distrib(gen)) {}
         }
     };
 
@@ -133,7 +133,7 @@ long same_ops_LLICCAS(int cores) {
 }
 
 long same_ops_LLICRWNC(int cores) {
-    std::cout << "\nPerforming 5'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -141,21 +141,21 @@ long same_ops_LLICRWNC(int cores) {
     LLICRWNC llic(cores + 1);
     // LLICRW llic;
     // llic.initializeDefault(cores + 1);
-    int operations = 5'000'000 / (cores + 1);
+    int operations = 20'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(1, 5);
+        std::uniform_int_distribution<> distrib(1, 3);
         sync_point.arrive_and_wait();
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
-            for (int j = 0; j < 25; j = j + distrib(gen)) {}
+            for (int j = 0; j < 40; j = j + distrib(gen)) {}
             llic.IC(max, processID);
-            for (int j = 0; j < 25; j = j + distrib(gen)) {}
+            for (int j = 0; j < 40; j = j + distrib(gen)) {}
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
@@ -184,29 +184,29 @@ long same_ops_LLICRWNC(int cores) {
 }
 
 long same_ops_LLICRW_SQRT(int cores) {
-    std::cout << "\nPerforming 5'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW SQRT with false sharing" << std::endl;
+    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW SQRT with false sharing" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     LLICRWSQRT llic;
     // LLICRWSQRTFS llic;
-    int operations = 5'000'000 / (cores + 1);
+    int operations = 20'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> distrib(1, 5);
+        std::uniform_int_distribution<> distrib(1, 3);
         sync_point.arrive_and_wait();
         int max_p = 0;
         int ind_max_p = 0;
         for (int i = 0; i < operations; ++i) {
             max_p = llic.LL(ind_max_p);
-            for (int j = 0; j < 25; j = j + distrib(gen)) {}
+            for (int j = 0; j < 40; j = j + distrib(gen)) {}
             llic.IC(max_p, ind_max_p, processID);
-            for (int j = 0; j < 25; j = j + distrib(gen)) {}
+            for (int j = 0; j < 40; j = j + distrib(gen)) {}
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
@@ -254,7 +254,7 @@ void experiment_time_execution(int iterations) {
         // std::vector<long> llicrwwcnpvec;
         for (int i = 0; i < (int)processor_count; ++i) {
             std::cout << "\n\nPerforming experiment for " << i + 1 << " cores\n\n" << std::endl;
-            std::cout << "Same number of operations by type: " << std::endl;
+            std::cout << "Same number of operations by type" << std::endl;
             faidelayvec.push_back(same_ops_FAI_delay(i));
             lliccasvec.push_back(same_ops_LLICCAS(i));
             // llicrwvec.push_back(same_ops_LLICRW(i));
@@ -277,7 +277,14 @@ void experiment_time_execution(int iterations) {
         result["iter-" + std::to_string(iter)] = r_iter;
     }
     std::cout << std::setw(4) << result << std::endl;
-    std::ofstream file("results.json");
+    std::time_t currTime;
+    std::tm* currTm;
+    std::time(&currTime);
+    currTm = std::localtime(&currTime);
+    char buffer[256];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d-%H:%M:%S", currTm);
+    std::string fileName = std::string(buffer) + "_experiment_time_execution.json";
+    std::ofstream file(fileName);
     file << std::setw(4) << result << std::endl;
     file.close();
 }

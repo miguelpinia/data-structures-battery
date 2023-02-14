@@ -16,7 +16,7 @@ endif()
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-# set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 
 enable_testing()
 
@@ -26,4 +26,4 @@ ADD_SUBDIRECTORY(algorithms)
 ADD_SUBDIRECTORY(tests)
 ADD_SUBDIRECTORY(main)
 ADD_SUBDIRECTORY(queue)
-ADD_SUBDIRECTORY(work-stealing)
+# ADD_SUBDIRECTORY(work-stealing)

@@ -208,7 +208,7 @@
 
 **** Irregular graph application
 
-     We consider the ppspanning-tree problem to evaluate the performance of each
+     We consider the spanning-tree problem to evaluate the performance of each
      algorithm. It is measured the speed-up of the computation by the parallel
      exploration of the input graph. This problem was used in
      [[[cite:&maged.vechev.2009]], [[cite:&fencefreeworkproceedings]]] to evaluate their
@@ -230,3 +230,4 @@
      - [ ] Memory management frameworks
      - [ ] JSON support for I/O
      - [ ] Some "[[https://github.com/Dobiasd/FunctionalPlus][Functional Framework]]" for data manipulation
+     - [ ] Property reading and configuration

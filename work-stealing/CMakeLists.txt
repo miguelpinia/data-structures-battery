@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.11..3.22)
+
 set(CMAKE_THREAD_PREFER_PTHREAD TRUE)
 set(THREADS_PREFER_PTHREAD_FLAG TRUE)
 find_package(Threads REQUIRED)
@@ -19,12 +21,13 @@ if(NOT json_POPULATED)
   add_subdirectory(${json_SOURCE_DIR} ${json_BINARY_DIR} EXCLUDE_FROM_ALL)
 endif()
 
+find_package(Boost REQUIRED COMPONENTS graph)
+# find_package(Boost REQUIRED COMPONENTS graph)
+ADD_SUBDIRECTORY(test)
 
-include_directories(${INCLUDE})
+include_directories(${INCLUDE} ${Boost_INCLUDE_DIR})
 
 add_executable(ws_exe ${SRCS} ${INCLUDE})
-
-
 
 target_link_libraries(ws_exe
   PRIVATE
