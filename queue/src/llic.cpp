@@ -492,3 +492,73 @@ bool LLICRWNewSolRandom::IC(int max_p, int ind_max_p, int thread_i)
     }
     return true;
 }
+
+
+///////////////////////////////////////
+// Putting togheter LL/IC operations //
+///////////////////////////////////////
+
+
+LLICRWNCT::LLICRWNCT() {}
+
+LLICRWNCT::LLICRWNCT(int n): num_processes(n)
+{
+    M = new std::atomic<int>[num_processes];
+    for (int i = 0; i < n; ++i) {
+        M[i] = 0;
+    }
+}
+
+void LLICRWNCT::initializeDefault(int n) {
+    num_processes = n;
+    M = new std::atomic<int>[num_processes];
+    for (int i = 0; i < n; ++i) {
+        M[i] = 0;
+    }
+}
+
+bool LLICRWNCT::LLIC(int process) {
+    bool successful = false;
+    int max_p = 0;
+    int maximum = 0;
+    int tmp;
+    for (int i = 0;  i < num_processes; i++) {
+        tmp = M[i].load();
+        if (tmp >= max_p) max_p = tmp;
+    }
+
+    for (int i = 0; i < num_processes; i++) {
+        tmp = M[i].load();
+        if (tmp > maximum) maximum = tmp;
+    }
+    if (maximum == max_p) {
+        successful = true;
+        M[process].store(max_p + 1);
+    }
+    return successful;
+}
+
+int LLICRWNCT::get() {
+    int max_p = 0;
+    int tmp;
+    for(int i = 0; i < num_processes; i++) {
+        tmp = M[i].load();
+        if (tmp >= max_p) max_p = tmp;
+    }
+    return max_p;
+}
+
+///////////////
+// CAS Based //
+///////////////
+
+LLICCAST::LLICCAST() {}
+
+bool LLICCAST::LLIC() {
+    int expected = R.load();
+    return R.compare_exchange_strong(expected, expected + 1);
+}
+
+int LLICCAST::get() {
+    return R.load();
+}

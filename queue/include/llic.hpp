@@ -179,4 +179,31 @@ public:
     int LL();
     void IC(int expected);
 };
+
+class LLICCAST
+{
+private:
+    std::atomic_int R = 0;
+
+public:
+    LLICCAST();
+    bool LLIC();
+    int get();
+};
+
+class LLICRWNCT {
+
+private:
+    std::atomic<int>* M;
+    int num_processes;
+
+public:
+
+    LLICRWNCT();
+    LLICRWNCT(int n);
+
+    void initializeDefault(int n);
+    bool LLIC(int process);
+    int get();
+};
 #endif
