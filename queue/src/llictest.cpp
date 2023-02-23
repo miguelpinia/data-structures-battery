@@ -368,7 +368,7 @@ void experiment_time_execution(int iterations) {
         r_iter["CAST"] = lliccastvec;
         // r_iter["RW"] = llicrwvec; // Without false sharing
         r_iter["RWNC"] = llicrwncvec; // With false sharing
-        r_iter["RWNCT"] = llicrwncvec; // With false sharing
+        r_iter["RWNCT"] = llicrwnctvec; // With false sharing
         r_iter["RWSQRT"] = llicrwsqrtvec; // With false sharing
         // r_iter["RWSQRTFS"] = llicrwsqrtfsvec; // Without false sharing
         // r_iter["RWWC"] = llicrwwcvec; // Without false sharing
