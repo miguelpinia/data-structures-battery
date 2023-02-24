@@ -355,7 +355,7 @@ void experiment_time_execution(int iterations) {
             lliccastvec.push_back(same_ops_LLICCAST(i));
             // llicrwvec.push_back(same_ops_LLICRW(i));
             llicrwncvec.push_back(same_ops_LLICRWNC(i));
-            llicrwncvec.push_back(same_ops_LLICRWNCT(i));
+            llicrwnctvec.push_back(same_ops_LLICRWNCT(i));
             llicrwsqrtvec.push_back(same_ops_LLICRW_SQRT(i));
             // llicrwsqrtfsvec.push_back(same_ops_LLICRW_SQRT_FS(i));
             // llicrwwcvec.push_back(same_ops_LLICRWWC(i));
