@@ -38,14 +38,14 @@ using namespace std::chrono_literals;
 ////////////////////////////////////////////////////////////
 
 long same_ops_FAI_delay(int cores) {
-    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment. (with delay)" << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of Fetch&Increment. (with delay)" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     std::atomic_int fai = 0;
     std::vector<std::thread> vecOfThreads;
-    int operations = 20'000'000 / (cores + 1);
+    int operations = 10'000'000 / (cores + 1);
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
     // Function to execute
@@ -85,12 +85,12 @@ long same_ops_FAI_delay(int cores) {
 
 
 long same_ops_LLICCAS(int cores) {
-    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC CAS based " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC CAS based " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     LLICCAS llic;
-    int operations = 20'000'000 / (cores + 1);
+    int operations = 10'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
@@ -133,12 +133,12 @@ long same_ops_LLICCAS(int cores) {
 }
 
 long same_ops_LLICCAST(int cores) {
-    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC CAS based with operations togheter" << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC CAS based with operations togheter" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     LLICCAST llic;
-    int operations = 20'000'000 / (cores + 1);
+    int operations = 10'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
@@ -178,7 +178,7 @@ long same_ops_LLICCAST(int cores) {
 }
 
 long same_ops_LLICRWNC(int cores) {
-    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -186,7 +186,7 @@ long same_ops_LLICRWNC(int cores) {
     LLICRWNC llic(cores + 1);
     // LLICRW llic;
     // llic.initializeDefault(cores + 1);
-    int operations = 20'000'000 / (cores + 1);
+    int operations = 10'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
@@ -229,7 +229,7 @@ long same_ops_LLICRWNC(int cores) {
 }
 
 long same_ops_LLICRWNCT(int cores) {
-    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
@@ -237,7 +237,7 @@ long same_ops_LLICRWNCT(int cores) {
     LLICRWNCT llic(cores + 1);
     // LLICRW llic;
     // llic.initializeDefault(cores + 1);
-    int operations = 20'000'000 / (cores + 1);
+    int operations = 10'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);
@@ -277,14 +277,14 @@ long same_ops_LLICRWNCT(int cores) {
 }
 
 long same_ops_LLICRW_SQRT(int cores) {
-    std::cout << "\nPerforming 20'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW SQRT with false sharing" << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW SQRT with false sharing" << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     LLICRWSQRT llic;
     // LLICRWSQRTFS llic;
-    int operations = 20'000'000 / (cores + 1);
+    int operations = 10'000'000 / (cores + 1);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores + 1, wait_for_begin);

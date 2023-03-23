@@ -4,6 +4,6 @@
 
 int main() {
     std::cout << "Hola mundo" << std::endl;
-    experiment_time_execution(20);
-    latency_experiment(20);
+    experiment_time_execution(40);
+    latency_experiment(40);
 }
