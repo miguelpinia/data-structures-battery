@@ -206,4 +206,18 @@ public:
     bool LLIC(int process);
     int get();
 };
+
+// class LLICRWT2 {
+// private:
+//     std::atomic<int>* M;
+//     int num_processes;
+
+// public:
+//     LLICRWT2();
+//     LLICRWT2(int n);
+
+//     void initializeDefault(int n);
+//     int LL();
+//     void IC(int)
+// };
 #endif
