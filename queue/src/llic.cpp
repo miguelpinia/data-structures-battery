@@ -1,4 +1,4 @@
-#include "include/llic.hpp"
+#include "../include/llic.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <ctime>
@@ -324,6 +324,14 @@ int get_random_from_range(int begin, int end, int exclude)
 }
 
 
+///////////////////
+// SRQT Versions //
+///////////////////
+
+/////////////
+// Classic //
+/////////////
+
 LLICRWSQRT::LLICRWSQRT() {
     size = 2;
     M = new std::atomic<int>[2];
@@ -386,6 +394,115 @@ bool LLICRWSQRT::IC(int max_p, int ind_max_p, int thread_i)
     return true;
 }
 
+/////////////////////////
+// Grouping processors //
+/////////////////////////
+
+
+LLICRWSQRTG::LLICRWSQRTG(int n, int group) : num_processes(n), group_size(group) {
+    size = num_processes / group_size;
+    M = new std::atomic<int>[size];
+    for (int i = 0; i < size; i++) {
+        M[i] = 0;
+    }
+}
+
+int LLICRWSQRTG::LL(int& ind_max_p) {
+    int max_p = -1;
+    int x;
+    for (int i = 0; i < size; i++) {
+        x = M[i].load();
+        if (x > max_p) {
+            max_p = x;
+            ind_max_p = i;
+        }
+    }
+    return max_p;
+}
+
+bool LLICRWSQRTG::IC(int max_p, int& ind_max_p, int thread_id) {
+    int pos = thread_id / size;
+    int x = M[ind_max_p].load();
+    int y = M[pos].load();
+    if (x <= max_p && y <= max_p) {
+        if (M[pos].compare_exchange_strong(y, max_p + 1)) {
+            ind_max_p = pos;
+        }
+    }
+    return true;
+}
+
+//////////////
+// 16 bytes //
+//////////////
+
+LLICRWSQRTG16::LLICRWSQRTG16(int n, int group): num_processes(n), group_size(group) {
+    size = num_processes / group_size;
+    M = new aligned_atomic_int_16[size];
+}
+
+int LLICRWSQRTG16::LL(int &ind_max_p) {
+    int max_p = -1;
+    int x;
+    for (int i = 0; i < size; i++) {
+        x = M[i].value.load();
+        if (x > max_p) {
+            max_p = x;
+            ind_max_p = i;
+        }
+    }
+    return max_p;
+}
+
+bool LLICRWSQRTG16::IC(int max_p, int &ind_max_p, int thread_id) {
+    int pos = thread_id / size;
+    int x = M[ind_max_p].value.load();
+    int y = M[pos].value.load();
+    if (x <= max_p && y <= max_p) {
+        if (M[pos].value.compare_exchange_strong(y, max_p + 1)) {
+            ind_max_p = pos;
+        }
+    }
+    return true;
+}
+
+//////////////
+// 32 bytes //
+//////////////
+
+LLICRWSQRTG32::LLICRWSQRTG32(int n, int group): num_processes(n), group_size(group)
+{
+    size = num_processes / group_size;
+    M = new aligned_atomic_int_32[size];
+}
+
+int LLICRWSQRTG32::LL(int &ind_max_p)
+{
+    int max_p = -1;
+    int x;
+    for (int i = 0; i < size; i++) {
+        x = M[i].value.load();
+        if (x > max_p) {
+            max_p = x;
+            ind_max_p = i;
+        }
+    }
+    return max_p;
+}
+
+bool LLICRWSQRTG32::IC(int max_p, int ind_max_p, int thread_id)
+{
+    int pos = thread_id / size;
+    int x = M[ind_max_p].value.load();
+    int y = M[pos].value.load();
+    if (x <= max_p && y <= max_p) {
+        if (M[pos].value.compare_exchange_strong(y, max_p + 1)) {
+            ind_max_p = pos;
+        }
+    }
+    return true;
+}
+
 //////////////////////////////////////
 // LL/IC Object SQRT with alignment //
 //////////////////////////////////////
@@ -442,8 +559,6 @@ bool LLICRWSQRTFS::IC(int max_p, int ind_max_p, int thread_i)
     }
     return true;
 }
-
-
 
 //////////////////////////////////////////////////
 // Solution without use restrictive randomness; //

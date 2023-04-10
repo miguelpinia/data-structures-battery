@@ -9,19 +9,19 @@ struct alignas(64) aligned_int { // https://en.cppreference.com/w/cpp/language/a
 };
 
 struct alignas(64) aligned_atomic_int {
-    std::atomic<int> value = 0;
+    std::atomic<int> value{0};
 };
 
 struct alignas(16) aligned_atomic_int_16 {
-    std::atomic<int> value = 0;
+    std::atomic<int> value{0};
 };
 
 struct alignas(32) aligned_atomic_int_32 {
-    std::atomic<int> value = 0;
+    std::atomic<int> value{0};
 };
 
 struct alignas(128) aligned_atomic_int_128 {
-    std::atomic<int> value = 0;
+    std::atomic<int> value{0};
 };
 
 class LLICRW
@@ -172,7 +172,7 @@ public:
 class LLICCAS
 {
 private:
-    std::atomic_int R = 0;
+    std::atomic_int R{0};
 
 public:
     LLICCAS();

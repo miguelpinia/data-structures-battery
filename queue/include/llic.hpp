@@ -9,19 +9,19 @@ struct alignas(64) aligned_int { // https://en.cppreference.com/w/cpp/language/a
 };
 
 struct alignas(64) aligned_atomic_int {
-    std::atomic<int> value = 0;
+    std::atomic<int> value{0};
 };
 
 struct alignas(16) aligned_atomic_int_16 {
-    std::atomic<int> value = 0;
+    std::atomic<int> value{0};
 };
 
 struct alignas(32) aligned_atomic_int_32 {
-    std::atomic<int> value = 0;
+    std::atomic<int> value{0};
 };
 
 struct alignas(128) aligned_atomic_int_128 {
-    std::atomic<int> value = 0;
+    std::atomic<int> value{0};
 };
 
 class LLICRW
@@ -155,6 +155,48 @@ public:
     bool IC(int max_p, int ind_max_p, int thread_id);
 };
 
+// Variants of LLICRWSQRT
+// 1.- Group processors to the same cache word
+// 2.- Testing distinct sizes for cache words - 16 and 32 bytes.
+class LLICRWSQRTG
+{
+private:
+    std::atomic<int>* M;
+    int num_processes;
+    int group_size;
+    int size;
+public:
+    LLICRWSQRTG(int n, int group);
+    int LL(int& ind_max_p);
+    bool IC(int max_p, int& ind_max_p, int thread_id);
+};
+
+class LLICRWSQRTG16
+{
+private:
+    aligned_atomic_int_16* M;
+    int num_processes;
+    int group_size;
+    int size;
+public:
+    LLICRWSQRTG16(int n, int group);
+    int LL(int& ind_max_p);
+    bool IC(int max_p, int& ind_max_p, int thread_id);
+};
+
+class LLICRWSQRTG32
+{
+private:
+    aligned_atomic_int_32* M;
+    int num_processes;
+    int group_size;
+    int size;
+public:
+    LLICRWSQRTG32(int n, int group_size);
+    int LL(int& ind_max_p);
+    bool IC(int max_p, int ind_max_p, int thread_id);
+};
+
 class LLICRWNewSolRandom
 {
 private:
@@ -172,7 +214,7 @@ public:
 class LLICCAS
 {
 private:
-    std::atomic_int R = 0;
+    std::atomic_int R{0};
 
 public:
     LLICCAS();
@@ -183,7 +225,7 @@ public:
 class LLICCAST
 {
 private:
-    std::atomic_int R = 0;
+    std::atomic_int R{0};
 
 public:
     LLICCAST();
