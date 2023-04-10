@@ -915,6 +915,8 @@ void experiment_time_execution(int iterations) {
         r_iter["RWNCT"] = llicrwnctvec; // With false sharing
         r_iter["RWSQRT"] = llicrwsqrtvec; // With false sharing
         r_iter["RWSQRTG"] = llicrwsqrtgvec; // With false sharing
+        r_iter["RWSQRTG16"] = llicrwsqrtg16vec;
+        r_iter["RWSQRTG32"] = llicrwsqrtg32vec;
         r_iter["RWSQRTFS"] = llicrwsqrtfsvec; // Without false sharing
         result["iter-" + std::to_string(iter)] = r_iter;
     }
