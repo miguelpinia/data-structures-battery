@@ -12,7 +12,7 @@ public:
     int size_k;
     std::atomic_int PUTS{0};
     std::atomic_int TAKES{0};
-    std::atomic<STATE_BASKET> STATE = OPEN;
+    std::atomic<STATE_BASKET> STATE{OPEN};
 
     KBasketFAI();
     KBasketFAI(int k);
@@ -31,7 +31,7 @@ private:
     int compete(int pos);
 public:
     int size_n;
-    std::atomic<STATE_BASKET> STATE = OPEN;
+    std::atomic<STATE_BASKET> STATE{OPEN};
     std::unordered_set<int> takes_p;
 
     KBasketCAS();

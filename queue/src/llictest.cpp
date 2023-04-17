@@ -46,10 +46,11 @@ long same_ops_FAI_delay(int cores) {
     // Magic begins
     std::atomic_int fai = 0;
     std::vector<std::thread> vecOfThreads;
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     // Function to execute
+
     std::function<void()> func = [&]() {
         std::random_device rd;  //Will be used to obtain a seed for the random number engine
         std::mt19937 gen(rd()); //Standard mersenne_twister_engine seeded with rd()
@@ -60,7 +61,7 @@ long same_ops_FAI_delay(int cores) {
             for (int j = 0; j < 80; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -75,6 +76,7 @@ long same_ops_FAI_delay(int cores) {
         if (th.joinable()) {
             th.join();
         }
+
     }
     // Finish execution
     std::clock_t c_end = std::clock();
@@ -91,10 +93,10 @@ long same_ops_LLICCAS(int cores) {
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     LLICCAS llic;
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void()> func = [&]() {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -103,13 +105,14 @@ long same_ops_LLICCAS(int cores) {
         int max = 0;
         for (int i = 0; i < operations; ++i) {
             max = llic.LL();
+
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
             llic.IC(max);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
         }
     };
 
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -139,10 +142,10 @@ long same_ops_LLICCAST(int cores) {
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     LLICCAST llic;
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void()> func = [&]() {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -154,7 +157,7 @@ long same_ops_LLICCAST(int cores) {
         }
     };
 
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -180,18 +183,18 @@ long same_ops_LLICCAST(int cores) {
 
 
 long same_ops_LLICRW(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW Without FalseSharing " << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRW llic(cores + 1);
+    LLICRW llic(cores);
     // LLICRW llic;
     // llic.initializeDefault(cores + 1);
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -206,7 +209,7 @@ long same_ops_LLICRW(int cores) {
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -231,18 +234,18 @@ long same_ops_LLICRW(int cores) {
 }
 
 long same_ops_LLICRW16(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing. 16 bytes of padding." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRW16 llic(cores + 1);
+    LLICRW16 llic(cores);
     // LLICRW llic;
     // llic.initializeDefault(cores + 1);
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -257,7 +260,7 @@ long same_ops_LLICRW16(int cores) {
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -282,18 +285,18 @@ long same_ops_LLICRW16(int cores) {
 }
 
 long same_ops_LLICRW32(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing. 32 bytes of padding." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRW32 llic(cores + 1);
+    LLICRW32 llic(cores);
     // LLICRW llic;
     // llic.initializeDefault(cores + 1);
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -308,7 +311,7 @@ long same_ops_LLICRW32(int cores) {
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -333,18 +336,18 @@ long same_ops_LLICRW32(int cores) {
 }
 
 long same_ops_LLICRW128(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW Without FalseSharing. 128 bytes of padding." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRW128 llic(cores + 1);
+    LLICRW128 llic(cores);
     // LLICRW llic;
     // llic.initializeDefault(cores + 1);
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -359,7 +362,7 @@ long same_ops_LLICRW128(int cores) {
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -384,16 +387,16 @@ long same_ops_LLICRW128(int cores) {
 }
 
 long same_ops_LLICRWWC(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW Without Cycle without false sharing." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWWC llic(cores + 1);
-    int operations = 10'000'000 / (cores + 1);
+    LLICRWWC llic(cores);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -407,7 +410,7 @@ long same_ops_LLICRWWC(int cores) {
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -431,17 +434,17 @@ long same_ops_LLICRWWC(int cores) {
     return duration;
 }
 
-long same_ops_LLICRWNC(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+long same_ops_LLICRWNP(int cores) {
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing. No padding." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWNC llic(cores + 1);
-    int operations = 10'000'000 / (cores + 1);
+    LLICRWNP llic(cores);
+    int operations = 10'000'000 / (cores);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -456,7 +459,7 @@ long same_ops_LLICRWNC(int cores) {
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -481,18 +484,18 @@ long same_ops_LLICRWNC(int cores) {
 }
 
 long same_ops_LLICRWNCT(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing. No padding, togheter." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWNCT llic(cores + 1);
+    LLICRWNCT llic(cores);
     // LLICRW llic;
     // llic.initializeDefault(cores + 1);
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -504,7 +507,7 @@ long same_ops_LLICRWNCT(int cores) {
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -529,16 +532,16 @@ long same_ops_LLICRWNCT(int cores) {
 }
 
 long same_ops_LLICRWWCNP(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing " << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW With FalseSharing. Without Cycle, no padding." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWWCNP llic(cores + 1);
-    int operations = 10'000'000 / (cores + 1);
+    LLICRWWCNP llic(cores);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -552,7 +555,7 @@ long same_ops_LLICRWWCNP(int cores) {
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         cpu_set_t cpuset;
         CPU_ZERO(&cpuset);
@@ -582,12 +585,12 @@ long same_ops_LLICRW_SQRT(int cores) {
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWSQRT llic;
+    LLICRWSQRT llic{cores};
     // LLICRWSQRTFS llic;
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -602,7 +605,7 @@ long same_ops_LLICRW_SQRT(int cores) {
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         // https://eli.thegreenplace.net/2016/c11-threads-affinity-and-hyperthreading/
         cpu_set_t cpuset;
@@ -629,16 +632,16 @@ long same_ops_LLICRW_SQRT(int cores) {
 }
 
 long same_ops_LLICRW_SQRT_FS(int cores) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW SQRT with false sharing" << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW SQRT without false sharing. 64 bytes of padding." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
-    LLICRWSQRTFS llic;
-    int operations = 10'000'000 / (cores + 1);
+    LLICRWSQRTFS llic{cores};
+    int operations = 10'000'000 / (cores);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -654,7 +657,7 @@ long same_ops_LLICRW_SQRT_FS(int cores) {
             // for (int j = 0; j < 30; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         // https://eli.thegreenplace.net/2016/c11-threads-affinity-and-hyperthreading/
         cpu_set_t cpuset;
@@ -688,10 +691,10 @@ long same_ops_LLICRW_SQRT_G(int cores, int group_size) {
     // Magic begins
     LLICRWSQRTG llic(cores, group_size);
     // LLICRWSQRTFS llic;
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / (cores);
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -701,12 +704,13 @@ long same_ops_LLICRW_SQRT_G(int cores, int group_size) {
         int ind_max_p = 0;
         for (int i = 0; i < operations; ++i) {
             max_p = llic.LL(ind_max_p);
+
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
             llic.IC(max_p, ind_max_p, processID);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         // https://eli.thegreenplace.net/2016/c11-threads-affinity-and-hyperthreading/
         cpu_set_t cpuset;
@@ -733,23 +737,23 @@ long same_ops_LLICRW_SQRT_G(int cores, int group_size) {
 }
 
 long same_ops_LLICRW_SQRT_G_16(int cores, int group_size) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW grouped" << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW grouped. 16 bytes of padding." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     LLICRWSQRTG16 llic(cores, group_size);
     // LLICRWSQRTFS llic;
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distrib(1, 3);
         sync_point.arrive_and_wait();
-        int max_p = 0;
+        int max_p = -1;
         int ind_max_p = 0;
         for (int i = 0; i < operations; ++i) {
             max_p = llic.LL(ind_max_p);
@@ -758,7 +762,7 @@ long same_ops_LLICRW_SQRT_G_16(int cores, int group_size) {
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         // https://eli.thegreenplace.net/2016/c11-threads-affinity-and-hyperthreading/
         cpu_set_t cpuset;
@@ -785,17 +789,17 @@ long same_ops_LLICRW_SQRT_G_16(int cores, int group_size) {
 }
 
 long same_ops_LLICRW_SQRT_G_32(int cores, int group_size) {
-    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW grouped" << std::endl;
+    std::cout << "\nPerforming 10'000'000 of operations. Each thread do the total divided by the number of threads: Case of LL/IC RW grouped. 32 bytes of padding." << std::endl;
     // Measuring time
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     // Magic begins
     LLICRWSQRTG32 llic(cores, group_size);
     // LLICRWSQRTFS llic;
-    int operations = 10'000'000 / (cores + 1);
+    int operations = 10'000'000 / cores;
     std::vector<std::thread> vecOfThreads;
     auto wait_for_begin = []() noexcept {};
-    std::barrier sync_point(cores + 1, wait_for_begin);
+    std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&](int processID) {
         std::random_device rd;
         std::mt19937 gen(rd());
@@ -810,7 +814,7 @@ long same_ops_LLICRW_SQRT_G_32(int cores, int group_size) {
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
         }
     };
-    for (int i = 0; i < cores + 1; i++) {
+    for (int i = 0; i < cores; i++) {
         vecOfThreads.push_back(std::thread(func, i));
         // https://eli.thegreenplace.net/2016/c11-threads-affinity-and-hyperthreading/
         cpu_set_t cpuset;
@@ -878,28 +882,29 @@ void experiment_time_execution(int iterations) {
         for (int i = 0; i < (int)processor_count; ++i) {
             std::cout << "\n\nPerforming experiment for " << i + 1 << " cores\n\n" << std::endl;
             std::cout << "Same number of operations by type" << std::endl;
-            faidelayvec.push_back(same_ops_FAI_delay(i));
+            int totalCores = i + 1;
+            faidelayvec.push_back(same_ops_FAI_delay(totalCores));
 
-            lliccasvec.push_back(same_ops_LLICCAS(i));
-            lliccastvec.push_back(same_ops_LLICCAST(i));
+            lliccasvec.push_back(same_ops_LLICCAS(totalCores));
+            lliccastvec.push_back(same_ops_LLICCAST(totalCores));
 
-            llicrwvec.push_back(same_ops_LLICRW(i));
-            llicrwvec16.push_back(same_ops_LLICRW16(i));
-            llicrwvec32.push_back(same_ops_LLICRW32(i));
-            llicrwvec128.push_back(same_ops_LLICRW128(i));
+            llicrwvec.push_back(same_ops_LLICRW(totalCores));
+            llicrwvec16.push_back(same_ops_LLICRW16(totalCores));
+            llicrwvec32.push_back(same_ops_LLICRW32(totalCores));
+            llicrwvec128.push_back(same_ops_LLICRW128(totalCores));
 
-            llicrwwcvec.push_back(same_ops_LLICRWWC(i));
+            llicrwwcvec.push_back(same_ops_LLICRWWC(totalCores));
 
-            llicrwwcnpvec.push_back(same_ops_LLICRWWCNP(i));
+            llicrwwcnpvec.push_back(same_ops_LLICRWWCNP(totalCores));
 
-            llicrwncvec.push_back(same_ops_LLICRWNC(i));
-            llicrwnctvec.push_back(same_ops_LLICRWNCT(i));
+            llicrwncvec.push_back(same_ops_LLICRWNP(totalCores));
+            llicrwnctvec.push_back(same_ops_LLICRWNCT(totalCores));
 
-            llicrwsqrtvec.push_back(same_ops_LLICRW_SQRT(i));
-            llicrwsqrtgvec.push_back(same_ops_LLICRW_SQRT_G(i, 8));
-            llicrwsqrtg16vec.push_back(same_ops_LLICRW_SQRT_G_16(i, 4));
-            llicrwsqrtg32vec.push_back(same_ops_LLICRW_SQRT_G_32(i, 2));
-            llicrwsqrtfsvec.push_back(same_ops_LLICRW_SQRT_FS(i));
+            llicrwsqrtvec.push_back(same_ops_LLICRW_SQRT(totalCores));
+            llicrwsqrtgvec.push_back(same_ops_LLICRW_SQRT_G(totalCores, 4));
+            llicrwsqrtg16vec.push_back(same_ops_LLICRW_SQRT_G_16(totalCores, 4));
+            llicrwsqrtg32vec.push_back(same_ops_LLICRW_SQRT_G_32(totalCores, 2));
+            llicrwsqrtfsvec.push_back(same_ops_LLICRW_SQRT_FS(totalCores));
         }
         json r_iter;
         r_iter["FAIDELAY"] = faidelayvec;

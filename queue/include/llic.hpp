@@ -32,7 +32,7 @@ private:
 public:
     LLICRW();
     LLICRW(int n);
-    // ~LLICRW();
+    ~LLICRW();
     void initializeDefault(int n);
     int LL();
     void IC(int max_p, int process);
@@ -47,7 +47,7 @@ private:
 public:
     LLICRW16();
     LLICRW16(int n);
-    // ~LLICRW();
+    ~LLICRW16();
     void initializeDefault(int n);
     int LL();
     void IC(int max_p, int process);
@@ -61,7 +61,7 @@ private:
 public:
     LLICRW32();
     LLICRW32(int n);
-    // ~LLICRW();
+    ~LLICRW32();
     void initializeDefault(int n);
     int LL();
     void IC(int max_p, int process);
@@ -75,7 +75,7 @@ private:
 public:
     LLICRW128();
     LLICRW128(int n);
-    // ~LLICRW();
+    ~LLICRW128();
     void initializeDefault(int n);
     int LL();
     void IC(int max_p, int process);
@@ -91,7 +91,7 @@ private:
 public:
     LLICRWWC();
     LLICRWWC(int n);
-    // ~LLICRW();
+    ~LLICRWWC();
     void initializeDefault(int n);
     int LL();
     void IC(int max_p, int process);
@@ -106,22 +106,22 @@ private:
 public:
     LLICRWWCNP();
     LLICRWWCNP(int n);
-    // ~LLICRW();
+    ~LLICRWWCNP();
     void initializeDefault(int n);
     int LL();
     void IC(int max_p, int process);
 };
 
 // No padding
-class LLICRWNC
+class LLICRWNP
 {
 private:
     std::atomic<int>* M;
     int num_processes;
 public:
-    LLICRWNC();
-    LLICRWNC(int n);
-    // ~LLICRW();
+    LLICRWNP();
+    LLICRWNP(int n);
+    ~LLICRWNP();
     void initializeDefault(int n);
     int LL();
     void IC(int max_p, int process);
@@ -139,6 +139,7 @@ public:
     void initializeDefault(int n);
     int LL(int& ind_max_p);
     bool IC(int max_p, int ind_max_p, int thread_id);
+    ~LLICRWSQRT();
 };
 
 class LLICRWSQRTFS
@@ -153,7 +154,9 @@ public:
     void initializeDefault(int n);
     int LL(int& ind_max_p);
     bool IC(int max_p, int ind_max_p, int thread_id);
+    ~LLICRWSQRTFS();
 };
+
 
 // Variants of LLICRWSQRT
 // 1.- Group processors to the same cache word
@@ -169,6 +172,7 @@ public:
     LLICRWSQRTG(int n, int group);
     int LL(int& ind_max_p);
     bool IC(int max_p, int& ind_max_p, int thread_id);
+    ~LLICRWSQRTG();
 };
 
 class LLICRWSQRTG16
@@ -181,7 +185,8 @@ private:
 public:
     LLICRWSQRTG16(int n, int group);
     int LL(int& ind_max_p);
-    bool IC(int max_p, int& ind_max_p, int thread_id);
+    bool IC(int max_p, int& idx_max_p, int thread_id);
+    ~LLICRWSQRTG16();
 };
 
 class LLICRWSQRTG32
@@ -194,7 +199,8 @@ private:
 public:
     LLICRWSQRTG32(int n, int group_size);
     int LL(int& ind_max_p);
-    bool IC(int max_p, int ind_max_p, int thread_id);
+    bool IC(int max_p, int& idx_max_p, int thread_id);
+    ~LLICRWSQRTG32();
 };
 
 class LLICRWNewSolRandom
@@ -247,6 +253,7 @@ public:
     void initializeDefault(int n);
     bool LLIC(int process);
     int get();
+    ~LLICRWNCT();
 };
 
 // class LLICRWT2 {

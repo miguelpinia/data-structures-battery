@@ -67,6 +67,10 @@ void LLICRW::IC(int max_p, int process) {
     }
 }
 
+LLICRW::~LLICRW() {
+    delete [] M;
+}
+
 ///////////////////////////////////////////////////////
 // LL/IC Object classic using aligned int (16 bytes) //
 ///////////////////////////////////////////////////////
@@ -103,6 +107,10 @@ void LLICRW16::IC(int max_p, int process) {
     if (maximum == max_p) {
         M[process].value.store(max_p + 1);
     }
+}
+
+LLICRW16::~LLICRW16() {
+    delete [] M;
 }
 
 
@@ -145,6 +153,10 @@ void LLICRW32::IC(int max_p, int process) {
     }
 }
 
+LLICRW32::~LLICRW32() {
+    delete [] M;
+}
+
 ////////////////////////////////////////////////////////
 // LL/IC Object classic using aligned int (128 bytes) //
 // It uses 2 cache lines                              //
@@ -184,6 +196,10 @@ void LLICRW128::IC(int max_p, int process) {
     }
 }
 
+LLICRW128::~LLICRW128() {
+    delete [] M;
+}
+
 ///////////////////////////////////////////////////////
 // LL/IC Object without use cycle in IC method using //
 // aligned atomic int (64 bytes)                     //
@@ -213,6 +229,10 @@ int LLICRWWC::LL() {
 
 void LLICRWWC::IC(int max_p, int process) {
     M[process].value.store(max_p + 1);
+}
+
+LLICRWWC::~LLICRWWC() {
+    delete [] M;
 }
 
 
@@ -248,13 +268,17 @@ void LLICRWWCNP::IC(int max_p, int process) {
     M[process].store(max_p + 1);
 }
 
+LLICRWWCNP::~LLICRWWCNP() {
+    delete [] M;
+}
+
 /////////////////////
 // Without padding //
 /////////////////////
 
-LLICRWNC::LLICRWNC() {}
+LLICRWNP::LLICRWNP() {}
 
-LLICRWNC::LLICRWNC(int n): num_processes(n)
+LLICRWNP::LLICRWNP(int n): num_processes(n)
 {
     M = new std::atomic<int>[num_processes];
     for (int i = 0; i < n; ++i) {
@@ -262,7 +286,7 @@ LLICRWNC::LLICRWNC(int n): num_processes(n)
     }
 }
 
-void LLICRWNC::initializeDefault(int n) {
+void LLICRWNP::initializeDefault(int n) {
     num_processes = n;
     M = new std::atomic<int>[num_processes];
     for (int i = 0; i < n; ++i) {
@@ -270,7 +294,7 @@ void LLICRWNC::initializeDefault(int n) {
     }
 }
 
-int LLICRWNC::LL() {
+int LLICRWNP::LL() {
     int max_p = 0;
     int tmp;
     for(int i = 0; i < num_processes; i++) {
@@ -280,7 +304,7 @@ int LLICRWNC::LL() {
     return max_p;
 }
 
-void LLICRWNC::IC(int max_p, int process) {
+void LLICRWNP::IC(int max_p, int process) {
     int maximum = 0;
     int tmp;
     for(int i = 0; i < num_processes; i++) {
@@ -290,7 +314,10 @@ void LLICRWNC::IC(int max_p, int process) {
     if (maximum == max_p) {
         M[process].store(max_p + 1);
     }
+}
 
+LLICRWNP::~LLICRWNP() {
+    delete [] M;
 }
 
 //////////////////
@@ -394,13 +421,17 @@ bool LLICRWSQRT::IC(int max_p, int ind_max_p, int thread_i)
     return true;
 }
 
+LLICRWSQRT::~LLICRWSQRT() {
+    delete [] M;
+}
+
 /////////////////////////
 // Grouping processors //
 /////////////////////////
 
 
-LLICRWSQRTG::LLICRWSQRTG(int n, int group) : num_processes(n), group_size(group) {
-    size = num_processes / group_size;
+LLICRWSQRTG::LLICRWSQRTG(int num_processes, int group) : num_processes(num_processes), group_size(group) {
+    size = (num_processes / group_size) + 1;
     M = new std::atomic<int>[size];
     for (int i = 0; i < size; i++) {
         M[i] = 0;
@@ -421,7 +452,7 @@ int LLICRWSQRTG::LL(int& ind_max_p) {
 }
 
 bool LLICRWSQRTG::IC(int max_p, int& ind_max_p, int thread_id) {
-    int pos = thread_id / size;
+    int pos = thread_id / group_size;
     int x = M[ind_max_p].load();
     int y = M[pos].load();
     if (x <= max_p && y <= max_p) {
@@ -432,13 +463,23 @@ bool LLICRWSQRTG::IC(int max_p, int& ind_max_p, int thread_id) {
     return true;
 }
 
+LLICRWSQRTG::~LLICRWSQRTG() {
+    delete [] M;
+}
+
 //////////////
 // 16 bytes //
 //////////////
 
-LLICRWSQRTG16::LLICRWSQRTG16(int n, int group): num_processes(n), group_size(group) {
-    size = num_processes / group_size;
+LLICRWSQRTG16::LLICRWSQRTG16(int num_processes, int group):
+    num_processes(num_processes),
+    group_size(group) {
+    size = (num_processes / group_size) + 1;
     M = new aligned_atomic_int_16[size];
+    for (int i = 0; i < size; i++) {
+        M[i].value.store(0);
+    }
+
 }
 
 int LLICRWSQRTG16::LL(int &ind_max_p) {
@@ -454,16 +495,20 @@ int LLICRWSQRTG16::LL(int &ind_max_p) {
     return max_p;
 }
 
-bool LLICRWSQRTG16::IC(int max_p, int &ind_max_p, int thread_id) {
-    int pos = thread_id / size;
-    int x = M[ind_max_p].value.load();
+bool LLICRWSQRTG16::IC(int max_p, int &idx_max_p, int thread_id) {
+    int pos = thread_id / group_size;
+    int x = M[idx_max_p].value.load();
     int y = M[pos].value.load();
     if (x <= max_p && y <= max_p) {
         if (M[pos].value.compare_exchange_strong(y, max_p + 1)) {
-            ind_max_p = pos;
+            idx_max_p = pos;
         }
     }
     return true;
+}
+
+LLICRWSQRTG16::~LLICRWSQRTG16() {
+    delete [] M;
 }
 
 //////////////
@@ -472,8 +517,11 @@ bool LLICRWSQRTG16::IC(int max_p, int &ind_max_p, int thread_id) {
 
 LLICRWSQRTG32::LLICRWSQRTG32(int n, int group): num_processes(n), group_size(group)
 {
-    size = num_processes / group_size;
+    size = (num_processes / group_size) + 1;
     M = new aligned_atomic_int_32[size];
+    for (int i = 0; i < size; i++) {
+        M[i].value.store(0);
+    }
 }
 
 int LLICRWSQRTG32::LL(int &ind_max_p)
@@ -490,17 +538,22 @@ int LLICRWSQRTG32::LL(int &ind_max_p)
     return max_p;
 }
 
-bool LLICRWSQRTG32::IC(int max_p, int ind_max_p, int thread_id)
+bool LLICRWSQRTG32::IC(int max_p, int &idx_max_p, int thread_id)
 {
-    int pos = thread_id / size;
-    int x = M[ind_max_p].value.load();
+    int idx_max = idx_max_p;
+    int pos = thread_id / group_size;
+    int x = M[idx_max].value.load();
     int y = M[pos].value.load();
     if (x <= max_p && y <= max_p) {
         if (M[pos].value.compare_exchange_strong(y, max_p + 1)) {
-            ind_max_p = pos;
+            idx_max_p = pos;
         }
     }
     return true;
+}
+
+LLICRWSQRTG32::~LLICRWSQRTG32() {
+    delete [] M;
 }
 
 //////////////////////////////////////
@@ -559,6 +612,11 @@ bool LLICRWSQRTFS::IC(int max_p, int ind_max_p, int thread_i)
     }
     return true;
 }
+
+LLICRWSQRTFS::~LLICRWSQRTFS() {
+    delete [] M;
+}
+
 
 //////////////////////////////////////////////////
 // Solution without use restrictive randomness; //
@@ -675,6 +733,10 @@ int LLICRWNCT::get() {
         if (tmp >= max_p) max_p = tmp;
     }
     return max_p;
+}
+
+LLICRWNCT::~LLICRWNCT() {
+    delete [] M;
 }
 
 ///////////////
