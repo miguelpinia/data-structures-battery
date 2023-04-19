@@ -21,10 +21,10 @@ KBasketFAI::KBasketFAI(int k) : size_k(k)
 }
 
 
-void KBasketFAI::initializeDefault(int n)
+void KBasketFAI::initializeDefault(int k)
 { // To perform a lazy loading after create a  object with default constructor
-    A = new std::atomic<int>[n];
-    size_k = n;
+    A = new std::atomic<int>[k];
+    size_k = k;
     for (int i = 0; i < size_k; i++) {
         A[i] = BOTTOM;
     }
@@ -36,16 +36,15 @@ KBasketFAI::~KBasketFAI() {
 
 STATE_PUT KBasketFAI::put(int x)
 {
-
     STATE_BASKET state;
     int puts;
     while(true) {
-        state = STATE.load();
+        state = STATE.load(std::memory_order_seq_cst);
         puts = PUTS.load();
         if (state == CLOSED || puts >= size_k) {
             return FULL;
         } else {
-            puts = PUTS++; // Equivalent to fetch_add(1) https://en.cppreference.com/w/cpp/atomic/atomic/operator_arith FAI
+            puts = PUTS.fetch_add(1); // Equivalent to fetch_add(1) https://en.cppreference.com/w/cpp/atomic/atomic/operator_arith FAI
             if (puts >= size_k) {
                 return FULL;
             } else if (A[puts].exchange(x) == BOTTOM) {// https://en.cppreference.com/w/cpp/atomic/atomic/exchange (swap)
@@ -57,17 +56,17 @@ STATE_PUT KBasketFAI::put(int x)
 
 int KBasketFAI::take()
 {
-    STATE_BASKET state;
+    // STATE_BASKET state;
     int takes;
     while (true) {
-        state = STATE.load();
+        // state = STATE.load();
         takes = TAKES.load();
-        if (state == CLOSED or takes >= size_k) {
+        if (STATE.load() == CLOSED or takes >= size_k) {
             return BASKET_CLOSED;
         } else {
             takes = TAKES++;
             if (takes >= size_k) {
-                STATE.store(CLOSED);
+                STATE.store(CLOSED, std::memory_order_seq_cst);
                 return BASKET_CLOSED;
             } else {
                 int x = A[takes].exchange(TOP);

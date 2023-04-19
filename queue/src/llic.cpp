@@ -25,6 +25,12 @@ void LLICCAS::IC(int expected)
     }
 }
 
+void LLICCAS::IC(int expected, int process) {
+    this->IC(expected);
+}
+
+void LLICCAS::initializeDefault(int n) {}
+
 /////////////////////
 // 64 bits version //
 /////////////////////
@@ -471,6 +477,8 @@ LLICRWSQRTG::~LLICRWSQRTG() {
 // 16 bytes //
 //////////////
 
+LLICRWSQRTG16::LLICRWSQRTG16() {}
+
 LLICRWSQRTG16::LLICRWSQRTG16(int num_processes, int group):
     num_processes(num_processes),
     group_size(group) {
@@ -479,7 +487,16 @@ LLICRWSQRTG16::LLICRWSQRTG16(int num_processes, int group):
     for (int i = 0; i < size; i++) {
         M[i].value.store(0);
     }
+}
 
+void LLICRWSQRTG16::initializeDefault(int n, int gs) {
+    num_processes = n;
+    group_size = gs;
+    size = (num_processes / group_size) + 1;
+    M = new aligned_atomic_int_16[size];
+    for (int i = 0; i < size; i++) {
+        M[i].value.store(0);
+    }
 }
 
 int LLICRWSQRTG16::LL(int &ind_max_p) {

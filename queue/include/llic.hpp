@@ -183,7 +183,9 @@ private:
     int group_size;
     int size;
 public:
+    LLICRWSQRTG16();
     LLICRWSQRTG16(int n, int group);
+    void initializeDefault(int n, int group_size);
     int LL(int& ind_max_p);
     bool IC(int max_p, int& idx_max_p, int thread_id);
     ~LLICRWSQRTG16();
@@ -226,6 +228,8 @@ public:
     LLICCAS();
     int LL();
     void IC(int expected);
+    void IC(int expected, int process);
+    void initializeDefault(int n);
 };
 
 class LLICCAST
