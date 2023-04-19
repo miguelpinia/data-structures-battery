@@ -7,11 +7,11 @@
 class KBasketFAI
 {
 private:
-    std::atomic_int* A;
+    std::atomic<int> *A;
 public:
     int size_k;
-    std::atomic_int PUTS{0};
-    std::atomic_int TAKES{0};
+    std::atomic<int> PUTS{0};
+    std::atomic<int> TAKES{0};
     std::atomic<STATE_BASKET> STATE{OPEN};
 
     KBasketFAI();
@@ -24,19 +24,19 @@ public:
     int take();
 };
 
-class KBasketCAS
+class NBasketCAS
 {
 private:
-    std::atomic_int* A;
+    std::atomic<int> *A;
     int compete(int pos);
 public:
     int size_n;
     std::atomic<STATE_BASKET> STATE{OPEN};
-    std::unordered_set<int> takes_p;
+    // std::unordered_set<int> takes_p;
 
-    KBasketCAS();
-    KBasketCAS(int n);
-    ~KBasketCAS();
+    NBasketCAS();
+    NBasketCAS(int n);
+    ~NBasketCAS();
 
     void initializeDefault(int n);
 

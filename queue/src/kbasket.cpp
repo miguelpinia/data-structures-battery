@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "include/kbasket.hpp"
 
-void initializeFAI(std::atomic_int* array, int size) {
+void initializeFAI(std::atomic<int>* array, int size) {
     for (int i = 0; i < size; i++) {
         array[i] = BOTTOM;
     }
@@ -14,15 +14,20 @@ KBasketFAI::KBasketFAI() {}
 
 KBasketFAI::KBasketFAI(int k) : size_k(k)
 {
-    A = new std::atomic_int[size_k];
-    initializeFAI(A, size_k);
+    A = new std::atomic<int>[size_k];
+    for (int i = 0; i < size_k; i++) {
+        A[i] = BOTTOM;
+    }
 }
 
 
-void KBasketFAI::initializeDefault(int n) { // To perform a lazy loading after create a  object with default constructor
-    A = new std::atomic_int[n];
+void KBasketFAI::initializeDefault(int n)
+{ // To perform a lazy loading after create a  object with default constructor
+    A = new std::atomic<int>[n];
     size_k = n;
-    initializeFAI(A, n);
+    for (int i = 0; i < size_k; i++) {
+        A[i] = BOTTOM;
+    }
 }
 
 KBasketFAI::~KBasketFAI() {
@@ -70,40 +75,34 @@ int KBasketFAI::take()
             }
         }
     }
-    return BASKET_CLOSED;
 }
 
-void initializeCAS(std::atomic_int* array, int size) {
-    for (int i = 0; i < size; i++) {
-        array[i] = BOTTOM;
+NBasketCAS::NBasketCAS() {}
+
+NBasketCAS::NBasketCAS(int n) : size_n(n)
+{
+    A = new std::atomic<int>[size_n];
+    for (int i = 0; i < size_n; i++) {
+        A[i] = BOTTOM;
     }
 }
 
-KBasketCAS::KBasketCAS() {}
-
-KBasketCAS::KBasketCAS(int n) : size_n(n)
-{
-    A = new std::atomic_int[size_n];
-    initializeCAS(A, size_n);
-}
-
-KBasketCAS::~KBasketCAS() {
+NBasketCAS::~NBasketCAS() {
     delete [] A;
 }
 
-void KBasketCAS::initializeDefault(int n) { // To perform a lazy loading after create a  object with default constructor
-    A = new std::atomic_int[n];
-    size_n = n;
-    initializeCAS(A, n);
-    for(int i = 0; i < n; i++) {
-        takes_p.insert(i);
+void NBasketCAS::initializeDefault(int number_processes) { // To perform a lazy loading after create a  object with default constructor
+    A = new std::atomic<int>[number_processes];
+    size_n = number_processes;
+    for (int i = 0; i < size_n; i++) {
+        A[i] = BOTTOM;
     }
 }
 
-int KBasketCAS::compete(int pos)
+int NBasketCAS::compete(int pos)
 {
     int x = A[pos].load();
-    if (x == TOP) {
+     if (x == TOP) {
         return TOP;
     } else if (A[pos].compare_exchange_strong(x, TOP)) { // https://en.cppreference.com/w/cpp/atomic/atomic/compare_exchange
         return x;
@@ -111,7 +110,7 @@ int KBasketCAS::compete(int pos)
     return BOTTOM;
 }
 
-STATE_PUT KBasketCAS::put(int x, int process)
+STATE_PUT NBasketCAS::put(int x, int process)
 {
     int bottom = BOTTOM; // can't compare const int& respect to the value in atomic<int>
     if (STATE.load() == CLOSED) {
@@ -124,47 +123,73 @@ STATE_PUT KBasketCAS::put(int x, int process)
     return FULL;
 }
 
-bool inTakes(int process, std::unordered_set<int> set) {
-    std::unordered_set<int>::const_iterator got = set.find(process);
-    return got != set.end();
-}
+// bool inTakes(int process, std::unordered_set<int> set) {
+//     std::unordered_set<int>::const_iterator got = set.find(process);
+//     return got != set.end();
+// }
 
-int randomValInSet(std::unordered_set<int> set) { //  TODO: Add tests (MAPA 2021-12-19)
-    int size = set.size();
-    std::default_random_engine generator;
-    std::uniform_int_distribution<int> distribution(0,size);
-    std::unordered_set<int> :: iterator itr;
-    int pos = distribution(generator);
-    auto it = set.begin();
-    std::advance(it, pos); //  TODO: Delete object once it's hit (MAPA 2021-12-19)
-    return *it;
-}
+// int randomValInSet(std::unordered_set<int> set) { //  TODO: Add tests (MAPA 2021-12-19)
+//     int size = set.size();
+//     std::default_random_engine generator;
+//     std::uniform_int_distribution<int> distribution(0,size);
+//     std::unordered_set<int> :: iterator itr;
+//     int pos = distribution(generator);
+//     auto it = set.begin();
+//     std::advance(it, pos); //  TODO: Delete object once it's hit (MAPA 2021-12-19)
+//     return *it;
+// }
 
-int KBasketCAS::take(int process)
+// int KBasketCAS::take(int process)
+// {
+//     int pos;
+//     while(true) {
+//         if (STATE.load() == CLOSED) {
+//             return BASKET_CLOSED;
+//         } else {
+//             if (inTakes(process, takes_p)) {
+//                 pos = process;
+//             } else {
+//                 pos = randomValInSet(takes_p);
+//             }
+//             takes_p.erase(pos);
+//             if (takes_p.empty()) {
+//                 STATE.store(CLOSED);
+//             }
+//             int x = compete(pos);
+//             if (x != TOP && x!= BOTTOM) {
+//                 return x;
+//             } else if (x == BOTTOM) {
+//                 x = compete(pos);
+//                 if (x != TOP && x != BOTTOM) {
+//                     return x;
+//                 }
+//             }
+//         }
+//     }
+// }
+
+
+int NBasketCAS::take(int process)
 {
-    int pos;
+    int pos = process;
     while(true) {
         if (STATE.load() == CLOSED) {
             return BASKET_CLOSED;
         } else {
-            if (inTakes(process, takes_p)) {
-                pos = process;
-            } else {
-                pos = randomValInSet(takes_p);
-            }
-            takes_p.erase(pos);
-            if (takes_p.empty()) {
+            if (pos == process + size_n ) {
                 STATE.store(CLOSED);
+                continue;
             }
-            int x = compete(pos);
+            int x = compete(pos % size_n);
             if (x != TOP && x!= BOTTOM) {
                 return x;
             } else if (x == BOTTOM) {
-                x = compete(pos);
+                x = compete(pos % size_n);
                 if (x != TOP && x != BOTTOM) {
                     return x;
                 }
             }
+            pos++;
         }
     }
 }
