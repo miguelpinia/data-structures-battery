@@ -516,7 +516,7 @@ bool LLICRWSQRTG16::IC(int max_p, int &idx_max_p, int thread_id) {
     int pos = thread_id / group_size;
     int x = M[idx_max_p].value.load();
     int y = M[pos].value.load();
-    if (x <= max_p && y <= max_p) {
+    if (max_p <= x && y <= max_p) {
         if (M[pos].value.compare_exchange_strong(y, max_p + 1)) {
             idx_max_p = pos;
         }
