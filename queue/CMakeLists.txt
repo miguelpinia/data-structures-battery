@@ -29,6 +29,7 @@ add_executable(queue_exe ${SRCS} ${INCLUDE})
 
 target_link_libraries(queue_exe
   PRIVATE
+  basket
   nlohmann_json::nlohmann_json
   Threads::Threads
   )
