@@ -1,4 +1,4 @@
-#include "../include/llic.hpp"
+#include "include/llic.hpp"
 #include <cmath>
 #include <cstdlib>
 #include <ctime>

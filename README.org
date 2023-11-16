@@ -7,3 +7,24 @@ for data structures. The main language used to code the algorithms and other
 stuff is C++ with CMake.
 
 Technical details about this project are in the folder [[file:docs][docs]].
+
+* How to use this repository
+
+** Dependencies
+
+   install the following dependencies
+
+   - CMake >= 3.18
+   - g++ >= 12
+   - git
+   -
+
+** Compilation and running tests
+
+   Using cmake and make, execute
+
+   #+begin_src bash
+     cmake -S . -B build
+     make -C build
+     make test -C build
+   #+end_src
