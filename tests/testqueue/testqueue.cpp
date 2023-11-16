@@ -1,7 +1,7 @@
 #include <iostream>
 #include "testqueue.h"
-#include "BasketQueue.hpp"
-#include "Queue.h"
+#include "include/basket_queue.hpp"
+#include "include/queue.hpp"
 #include "gtest/gtest.h"
 #include "gmock/gmock.h"
 
@@ -36,13 +36,13 @@ TEST_F(TestQueue, isEnqueueAndDequeueRWFAI)
 {
     // std::cout << "Testing RWFAIBasketQueue with 10,000,000 elements enqueued and dequeued " << std::endl;
     // Crea una cola de 1,000,000 de elementos, con baskets de tamaño 1
-    RWFAIBasketQueue* queue = new RWFAIBasketQueue(10000000, 1, 1);
+    FAIQueue<LLICRW> queue{10000000, 1, 1};
     for(int i = 0; i < 10000000; i++) {
         // Los procesos comienzan en cero
-        queue->enqueue(i, 0);
+        queue.enqueue(i, 0);
     }
     for(int i = 0; i < 10000000; i++) {
-        EXPECT_EQ(queue->dequeue(0), i);
+        EXPECT_EQ(queue.dequeue(0), i);
     }
 }
 
@@ -50,13 +50,13 @@ TEST_F(TestQueue, isEnqueueAndDequeueCASFAI)
 {
     // std::cout << "Testing CASFAIBasketQueue with 10,000,000 elements enqueued and dequeued " << std::endl;
     // Crea una cola de 1,000,000 de elementos, con baskets de tamaño 1
-    CASFAIBasketQueue* queue = new CASFAIBasketQueue(10000000, 1);
+    FAIQueue<LLICCAS>  queue{10000000, 1, 1};
     for(int i = 0; i < 10000000; i++) {
         // Los procesos comienzan en cero
-        queue->enqueue(i);
+        queue.enqueue(i, 0);
     }
     for(int i = 0; i < 10000000; i++) {
-        EXPECT_EQ(queue->dequeue(), i);
+        EXPECT_EQ(queue.dequeue(0), i);
     }
 }
 
@@ -64,13 +64,13 @@ TEST_F(TestQueue, isEnqueueAndDequeueCASCAS)
 {
     // std::cout << "Testing CASCASBasketQueue with 10,000,000 elements enqueued and dequeued " << std::endl;
     // Crea una cola de 1,000,000 de elementos, con baskets de tamaño 1
-    CASCASBasketQueue* queue = new CASCASBasketQueue(10000000, 1);
+    CASQueue<LLICCAS> queue{10000000, 1};
     for(int i = 0; i < 10000000; i++) {
         // Los procesos comienzan en cero
-        queue->enqueue(i, 0);
+        queue.enqueue(i, 0);
     }
     for(int i = 0; i < 10000000; i++) {
-        EXPECT_EQ(queue->dequeue(0), i);
+        EXPECT_EQ(queue.dequeue(0), i);
     }
 
 }
@@ -80,12 +80,12 @@ TEST_F(TestQueue, isEnqueueAndDequeueRWCAS)
 {
     // std::cout << "Testing RWCASBasketQueue with 10,000,000 elements enqueued and dequeued " << std::endl;
     // Crea una cola de 1,000,000 de elementos, con baskets de tamaño 1
-    RWCASBasketQueue* queue = new RWCASBasketQueue(10000000, 1, 1);
+    CASQueue<LLICRW> queue{10000000, 1};
     for(int i = 0; i < 10000000; i++) {
         // Los procesos comienzan en cero
-        queue->enqueue(i, 0);
+        queue.enqueue(i, 0);
     }
     for(int i = 0; i < 10000000; i++) {
-        EXPECT_EQ(queue->dequeue(0), i);
+        EXPECT_EQ(queue.dequeue(0), i);
     }
 }
