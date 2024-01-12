@@ -1,5 +1,7 @@
 #include <iostream>
 #include "include/HPQueue.hpp"
+#include "include/ThreadingQueue.hpp"
+
 
 int main() {
     std::cout << "Hola Mundo desde queue test!" << std::endl;
@@ -28,5 +30,7 @@ int main() {
     std::cout << "Extraido: " << ex << std::endl;
     // ex = *q.dequeue();
     // std::cout << "Extraido: " << ex << std::endl;
+    long time = queue_test(8);
+    std::cout << time << std::endl;
     return 0;
 }

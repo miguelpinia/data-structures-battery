@@ -12,7 +12,7 @@ add_executable(queue_hazard_exe ${SRCS} ${INCLUDE})
 
 target_link_libraries(queue_hazard_exe
   PRIVATE
-  # basket
+  basket
   nlohmann_json::nlohmann_json
   Threads::Threads
   )
