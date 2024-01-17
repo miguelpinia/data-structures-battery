@@ -15,8 +15,8 @@ target_link_libraries(queue_hazard_exe
   basket
   nlohmann_json::nlohmann_json
   Threads::Threads
-  )
+)
 
-  set_target_properties(queue_hazard_exe PROPERTIES COMPILE_FLAGS "-save-temps")
+set_target_properties(queue_hazard_exe PROPERTIES COMPILE_FLAGS "-save-temps")
 
-  install(TARGETS queue_hazard_exe DESTINATION bin)
+install(TARGETS queue_hazard_exe DESTINATION bin)
