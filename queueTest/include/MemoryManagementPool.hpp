@@ -3,7 +3,6 @@
 
 #include <atomic>
 #include <vector>
-#include <list>
 
 
 // We need a memory management tool. This tool must provide the
@@ -24,7 +23,7 @@ private:
     static const int HP_THREADS_MAX = 128;
     static const int HP_K_MAX = 4;
     static const int CL_PAD = 128 / sizeof(std::atomic<T*>);
-    static const int HP_THRESHOLD_R = CL_PAD / 2;
+    static const int HP_THRESHOLD_R = CL_PAD / 4;
 
     std::atomic<T*>* hp[HP_THREADS_MAX];
     std::vector<T*> retiredList[HP_THREADS_MAX * CL_PAD];
@@ -34,7 +33,7 @@ private:
 
 public:
     MemoryManagementPool(int max_HP = HP_K_MAX, int max_threads = HP_THREADS_MAX) :
-        max_HP(max_HP), max_Threads(max_threads){
+        max_HP(max_HP), max_Threads(max_threads) {
         for (int ith = 0; ith < HP_THREADS_MAX; ith++) {
             hp[ith] = new std::atomic<T*>[CL_PAD * 2];
             for (int ihp = 0; ihp < HP_K_MAX; ihp++) {
@@ -46,7 +45,7 @@ public:
     ~MemoryManagementPool() {
         for (int ith = 0; ith < HP_THREADS_MAX; ith++) {
             delete[] hp[ith];
-            for (int irl = 0; irl < retiredList[ith * CL_PAD].size(); irl++) {
+            for (unsigned irl = 0; irl < retiredList[ith * CL_PAD].size(); irl++) {
                 delete retiredList[ith * CL_PAD][irl];
             }
         }
@@ -66,10 +65,15 @@ public:
         T* n = nullptr;
         T* ret;
         while ((ret = atom.load()) != n) {
-            hp[thread_id][hp_idx].store(ret);
+            hp[thread_id][hp_idx].store(ret, std::memory_order_seq_cst);
             n = ret;
         }
         return ret;
+    }
+
+    T* protectPointer(int hp_idx, T* pointer, const int thread_id) {
+        hp[thread_id][hp_idx].store(pointer);
+        return pointer;
     }
 
     bool retire(T* ptr, const int thread_id) {
@@ -80,7 +84,7 @@ public:
             bool canDelete = true;
             for (int tid = 0; tid < max_Threads && canDelete; tid++) {
                 for (int hp_idx = max_HP - 1; hp_idx >= 0; hp_idx--) {
-                    if (hp[thread_id][hp_idx].load() == obj) {
+                    if (hp[tid][hp_idx].load() == obj) {
                         canDelete = false;
                         break;
                     }
@@ -93,6 +97,7 @@ public:
             }
             irl++;
         }
+        return true;
     }
 
 };
