@@ -27,12 +27,12 @@ private:
     alignas(128) std::atomic<Node*> tail;
 
     static const int MAX_THREADS = 128;
-    const int maxThreads;
+    std::size_t maxThreads;
 
     MemoryManagementPool<Node> mm;
 
 public:
-    MichaelScottQueue(int maxThreads=MAX_THREADS) : maxThreads{maxThreads} {
+    MichaelScottQueue(std::size_t maxThreads=MAX_THREADS) : maxThreads{maxThreads} {
         Node* sentinelNode = new Node(nullptr);
         head.store(sentinelNode, std::memory_order_relaxed);
         tail.store(sentinelNode, std::memory_order_relaxed);

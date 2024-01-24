@@ -10,16 +10,13 @@
 #include <vector>
 #include <random>
 #include <cstdlib>
-#include "HPQueue.hpp"
-#include "FAAArrayQueue.hpp"
 #include "include/utils.hpp"
 
 template <typename Queue>
-long queue_test_general(int cores, Queue &queue) {
+long queue_test_general(int cores, Queue &queue, int operations) { // Operation by thread
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     std::vector<std::thread> threads;
-    int operations = 10'000'000 / cores;
     auto wait_for_begin = []() noexcept {};
     std::barrier sync_point(cores, wait_for_begin);
     std::function<void(int)> func = [&] (const int thread_id) {
@@ -27,17 +24,18 @@ long queue_test_general(int cores, Queue &queue) {
         std::mt19937 gen(rd());
         std::uniform_int_distribution<> distrib(1, 3);
         sync_point.arrive_and_wait();
-        std::string foo;
+        std::string* foo = new std::string();
         for (int i = 0; i < operations; i++) {
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
-            std::string* foo = new std::string();
-            *foo = std::to_string(i);
+
+            *foo = std::to_string(i) + "\n";
             queue.enqueue(foo, thread_id);
         }
         for (int i = 0; i < operations; i++) {
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
             queue.dequeue(thread_id);
         }
+        delete foo;
     };
     for (int i = 0; i < cores; i++) {
         const int thread_id = i;
@@ -63,5 +61,4 @@ long queue_test_general(int cores, Queue &queue) {
     print_time((c_end - c_start), duration, 0);
     return duration;
 }
-
 #endif
