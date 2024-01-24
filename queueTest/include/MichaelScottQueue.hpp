@@ -6,9 +6,10 @@
 #include <cassert>
 #include "MemoryManagementPool.hpp"
 
+namespace ms_queue {
 
-template<typename T>
-class MichaelScottQueue {
+    template<typename T>
+class Queue {
 
 private:
 
@@ -32,14 +33,14 @@ private:
     MemoryManagementPool<Node> mm;
 
 public:
-    MichaelScottQueue(std::size_t maxThreads=MAX_THREADS) : maxThreads{maxThreads} {
+    Queue(std::size_t maxThreads=MAX_THREADS) : maxThreads{maxThreads} {
         Node* sentinelNode = new Node(nullptr);
         head.store(sentinelNode, std::memory_order_relaxed);
         tail.store(sentinelNode, std::memory_order_relaxed);
     }
 
 
-    ~MichaelScottQueue() {
+    ~Queue() {
         while (dequeue(0) != nullptr);
         delete head.load();
     }
@@ -82,5 +83,9 @@ public:
         return nullptr;
     }
 };
+
+}
+
+
 
 #endif

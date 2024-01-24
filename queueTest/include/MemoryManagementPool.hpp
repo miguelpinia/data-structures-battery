@@ -20,20 +20,21 @@
 template <typename T>
 class MemoryManagementPool {
 private:
-    static const int HP_THREADS_MAX = 128;
+    static const int HP_THREADS_MAX = 64;
     static const int HP_K_MAX = 4;
-    static const int CL_PAD = 128 / sizeof(std::atomic<T*>);
-    static const int HP_THRESHOLD_R = CL_PAD / 4;
+    static const int CL_PAD = 64 / sizeof(std::atomic<T*>);
+    // static const int HP_THRESHOLD_R = CL_PAD / 4;
 
     std::atomic<T*>* hp[HP_THREADS_MAX];
     std::vector<T*> retiredList[HP_THREADS_MAX * CL_PAD];
 
     const int max_HP;
     const int max_Threads;
+    const std::size_t threshold;
 
 public:
     MemoryManagementPool(int max_HP = HP_K_MAX, int max_threads = HP_THREADS_MAX) :
-        max_HP(max_HP), max_Threads(max_threads) {
+        max_HP(max_HP), max_Threads(max_threads), threshold (2 * (max_threads * HP_K_MAX)) {
         for (int ith = 0; ith < HP_THREADS_MAX; ith++) {
             hp[ith] = new std::atomic<T*>[CL_PAD * 2];
             for (int ihp = 0; ihp < HP_K_MAX; ihp++) {
@@ -78,7 +79,7 @@ public:
 
     bool retire(T* ptr, const int thread_id) {
         retiredList[thread_id * CL_PAD].push_back(ptr);
-        if (retiredList[thread_id * CL_PAD].size() < HP_THRESHOLD_R) return false;
+        if (retiredList[thread_id * CL_PAD].size() < threshold) return false;
         for (unsigned irl = 0; irl < retiredList[thread_id * CL_PAD].size();) {
             auto obj = retiredList[thread_id * CL_PAD][irl];
             bool canDelete = true;
