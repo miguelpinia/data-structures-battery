@@ -47,12 +47,13 @@ public:
     void enqueue(T* item, const int tid) {
         assert(item != nullptr && "Elemento a insertar no puede ser nullptr");
         Node* newNode = new Node(item);
+        Node* nullNode = nullptr;
         while (true) {
             Node* ltail = mm.protectPointer(0, tail.load(), tid);
             if (ltail == tail.load()) {
                 Node* lnext = ltail->next.load();
                 if (lnext == nullptr) {
-                    if (ltail->next.compare_exchange_strong(lnext, newNode)) {
+                    if (ltail->next.compare_exchange_strong(nullNode, newNode)) {
                         tail.compare_exchange_strong(ltail, newNode);
                         mm.clear(tid);
                         return;
@@ -66,16 +67,16 @@ public:
 
 
     T* dequeue(const int tid) {
-        Node* node = mm.protectPointer(0, head.load(), tid);
+        Node* node = mm.protect(0, head, tid);
         while (node != tail.load()) {
-            Node* lnext = mm.protectPointer(1, node->next.load(), tid);
+            Node* lnext = mm.protect(1, node->next, tid);
             if (head.compare_exchange_strong(node, lnext)) {
                 T* item = lnext->item;
                 mm.clear(tid);
                 mm.retire(node, tid);
                 return item;
             }
-            node = mm.protectPointer(0, head.load(), tid);
+            node = mm.protect(0, head, tid);
         }
         mm.clear(tid);
         return nullptr;
