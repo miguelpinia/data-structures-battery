@@ -26,30 +26,20 @@ private:
             }
         }
 
-        bool casNext(Node *cmp, Node *val) {
-            return next.compare_exchange_strong(cmp, val);
-        }
     };
-
-    bool casTail(Node *cmp, Node *val) {
-        return tail.compare_exchange_strong(cmp, val);
-    }
-
-    bool casHead(Node *cmp, Node *val) {
-        return head.compare_exchange_strong(cmp, val);
-    }
 
     alignas(128) std::atomic<Node*> head;
     alignas(128) std::atomic<Node*> tail;
 
     static const int MAX_THREADS = 128;
-    const int maxThreads;
+    std::size_t maxThreads;
 
     T* taken = (T*) new int();
 
     MemoryManagementPool<Node> mm;
     const int kHPTail = 0;
     const int kHPHead = 0;
+
 
 public:
     FAAArrayQueue(int maxThreads=MAX_THREADS): maxThreads(maxThreads) {
@@ -67,8 +57,9 @@ public:
 
     std::string className() { return "FAAArrayqueue"; }
 
-    void enqueue(T* item, const int thread_id) {
+    void enqueue(T* item, std::size_t thread_id) {
         assert(item != nullptr && "Elemento a insertar no puede ser nullptr");
+        Node* nullValue = nullptr;
         while (true) {
             Node* ltail = mm.protectPointer(0, tail.load(), thread_id);
             const int idx = ltail->enqidx.fetch_add(1);
@@ -77,14 +68,14 @@ public:
                 Node* lnext = ltail->next.load();
                 if (lnext == nullptr) {
                     Node* newNode = new Node(item);
-                    if (ltail->casNext(nullptr, newNode)) {
-                        casTail(ltail, newNode);
+                    if (ltail->next.compare_exchange_strong(nullValue, newNode)) {
+                        tail.compare_exchange_strong(ltail, newNode);
                         mm.clear(thread_id);
                         return;
                     }
                     delete newNode;
                 } else {
-                    casTail(ltail, lnext);
+                    tail.compare_exchange_strong(ltail, lnext);
                 }
                 continue;
             }
@@ -96,7 +87,7 @@ public:
         }
     }
 
-    T* dequeue(const int thread_id) {
+    T* dequeue(std::size_t thread_id) {
         while (true) {
             Node* lhead = mm.protectPointer(0, head.load(), thread_id);
             if (lhead->deqidx.load() >= lhead->enqidx.load() && lhead->next.load() == nullptr) break;
