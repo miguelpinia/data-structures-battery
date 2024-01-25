@@ -35,9 +35,13 @@ long enq_deq_cas_cas(int cores, int operations) {
         sync_point.arrive_and_wait();
         for (int i = 0; i < totalOps; i++) {
             queue.enqueue(distrib(gen), processID);
+            std::atomic_thread_fence(std::memory_order_release);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
             queue.dequeue(processID);
+            std::atomic_thread_fence(std::memory_order_acquire);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
         }
     };
     for (int i = 0; i < cores; i++) {
@@ -80,9 +84,13 @@ long enq_deq_cas_fai(int cores, int operations) {
         sync_point.arrive_and_wait();
         for (int i = 0; i < totalOps; i++) {
             queue.enqueue(distrib(gen), processID);
+            std::atomic_thread_fence(std::memory_order_release);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
             queue.dequeue(processID);
+            std::atomic_thread_fence(std::memory_order_acquire);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
         }
     };
     for (int i = 0; i < cores; i++) {
@@ -122,9 +130,13 @@ long enq_deq_rw_cas(int cores, int operations) {
         sync_point.arrive_and_wait();
         for (int i = 0; i < totalOps; i++) {
             queue.enqueue(distrib(gen), processID);
+            std::atomic_thread_fence(std::memory_order_release);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
             queue.dequeue(processID);
+            std::atomic_thread_fence(std::memory_order_acquire);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
         }
     };
     for (int i = 0; i < cores; i++) {
@@ -165,9 +177,13 @@ long enq_deq_rw16_cas(int cores, int operations) {
         sync_point.arrive_and_wait();
         for (int i = 0; i < totalOps; i++) {
             queue.enqueue(distrib(gen), processID);
+            std::atomic_thread_fence(std::memory_order_release);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
             queue.dequeue(processID);
+            std::atomic_thread_fence(std::memory_order_acquire);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
         }
     };
     for (int i = 0; i < cores; i++) {
@@ -210,9 +226,13 @@ long enq_deq_rw_fai(int cores, int operations) {
         sync_point.arrive_and_wait();
         for (int i = 0; i < totalOps; i++) {
             queue.enqueue(distrib(gen), processID);
+            std::atomic_thread_fence(std::memory_order_release);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
             queue.dequeue(processID);
+            std::atomic_thread_fence(std::memory_order_acquire);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
         }
     };
     for (int i = 0; i < cores; i++) {
@@ -254,9 +274,13 @@ long enq_deq_rw16_fai(int cores, int operations) {
         sync_point.arrive_and_wait();
         for (int i = 0; i < totalOps; i++) {
             queue.enqueue(distrib(gen), processID);
+            std::atomic_thread_fence(std::memory_order_release);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
             queue.dequeue(processID);
+            std::atomic_thread_fence(std::memory_order_acquire);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
         }
     };
     for (int i = 0; i < cores; i++) {
@@ -302,9 +326,13 @@ long enq_deq_grouped16_fai(int cores, int operations) {
         int head_idx_max = 0;
         for (int i = 0; i < totalOps; i++) {
             queue.enqueue(distrib(gen), processID, tail_idx_max);
+            std::atomic_thread_fence(std::memory_order_release);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
             queue.dequeue(processID, tail_idx_max, head_idx_max);
+            std::atomic_thread_fence(std::memory_order_acquire);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
         }
     };
     for (int i = 0; i < cores; i++) {
@@ -346,9 +374,13 @@ long enq_deq_grouped16_cas(int cores, int operations) {
         int head_idx_max = 0;
         for (int i = 0; i < totalOps; i++) {
             queue.enqueue(distrib(gen), processID, tail_idx_max);
+            std::atomic_thread_fence(std::memory_order_release);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
             queue.dequeue(processID, tail_idx_max, head_idx_max);
+            std::atomic_thread_fence(std::memory_order_acquire);
             for (int j = 0; j < 40; j = j + distrib(gen)) {}
+            std::atomic_thread_fence(std::memory_order_release);
         }
     };
     for (int i = 0; i < cores; i++) {
