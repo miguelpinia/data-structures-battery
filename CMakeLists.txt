@@ -11,14 +11,15 @@ option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
 add_custom_target(check COMMAND ${CMAKE_CTEST_COMMAND} --verbose)
 
 if(NOT CMAKE_BUILD_TYPE)
-  set(CMAKE_BUILD_TYPE Release)
+  set(CMAKE_BUILD_TYPE Debug)
+  add_compile_options(-fsanitize=address)
+  add_link_options(-fsanitize=address)
 endif()
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
-#add_compile_options(-fsanitize=address)
-#add_link_options(-fsanitize=address)
+add_custom_target(print_build_type COMMAND ${CMAKE_COMMAND} -E echo ${CMAKE_BUILD_TYPE})
 
 enable_testing()
 

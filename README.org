@@ -28,3 +28,75 @@ Technical details about this project are in the folder [[file:docs][docs]].
      make -C build
      make test -C build
    #+end_src
+
+- [ ] Monolithic implementation
+- [ ] Resources pool
+
+
+** Análisis de relajaciones
+
+   Se identifica el patrón de utilizar memoria extra para "reducir contención y
+   no utilizar operaciones atómicas ". En este patrón, se suele utilizar un
+   arreglo con una entrada por proceso para manipular
+   información. Posteriormente, utilizando algún tipo de recorridos sobre el
+   arreglo (secuencial, tipo árbol), se revisa su información y se llega un
+   consenso débil según la función utilizada determinar que elemento satisface
+   la propiedad de consenso. Se puede fortalecer este consenso, utilizando
+   técnicas similares a =snapshots=.
+
+   Casos donde se identifica este patrón:
+
+   - Modular basket queues (nuestro trabajo)
+   - Basket queues (Morrison) [[cite:&scalingconcurrent2020]]
+   - Tree-queue (Johnen et al) [[cite:&DBLP_conf_opodis_JohnenKM22]]
+   - [[https://dl.acm.org/doi/abs/10.1145/3583668.3594563][Artículo de Armando y Valeria]]
+   - K-Fifo queues [[cite:&DBLP_conf_pact_KirschLP13;&DBLP_conf_ica3pp_KirschPRS12]]
+   - K-segments [[cite:&DBLP_conf_popl_HenzingerKPSS13]]
+
+   Razones por las que no se implementaron los cambios:
+
+   - Añadir un pool de baskets añade más contención.
+   - Implementar listas de arreglos de baskets es ligeramente más costoso que
+     inicializar un arreglo de baskets.
+   - Lista ligada de baskets (implementación similar a la de Morrison).
+
+   Costos de ejecutar ciclos vs contención
+
+   - [[https://arxiv.org/pdf/2010.09852.pdf][Evaluating the cost of Atomic Operations on Modern Architectures]]
+
+   Implementación:
+
+   - SBQ (Morrison) 50%
+   - WF-queue (Yang & Mellor-Crummey)
+   - LL/IC grouped 64 bytes + distintos tamaños de padding.
+
+   Implicaciones del artículo de Armando y Valeria:
+
+   - Implementación de pruebas unitarias
+
+
+** 15 de diciembre
+
+   - Hazard Pointers
+   - MSQueue - Michael & Scott
+   - LCRQ - Morrison & Afek
+   - WF-queue - Yang & Mellor-Crummey
+   -
+
+** Cosas implementadas
+
+   - [X] Hazard pointers
+   - [X] MSQUeue - Michael & Scott
+   - [X] SBQ (Ostrovsky & Morrison)
+   - [X] LCRQ - Morrison & Afek
+   - [ ] LCRQ-NO-CAS2 - Romanov - Koval
+   - [X] WF-Queue Yang & Mellor-Crummy
+
+* Local variables
+
+  \bibliographystyle{plainurl}
+  \bibliography{refs}
+
+# Local variables:
+# eval: (setq-local org-ref-default-bibliography "./refs.bib")
+# End:

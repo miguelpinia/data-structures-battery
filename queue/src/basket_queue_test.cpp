@@ -306,7 +306,7 @@ long enq_deq_rw16_fai(int cores, int operations) {
 
 
 long enq_deq_grouped16_fai(int cores, int operations) {
-    std::cout << "\nPerforming " << operations << " operations. All operations are evenly distributed between all threads. RW-FAI." << std::endl;
+    std::cout << "\nPerforming " << operations << " operations. All operations are evenly distributed between all threads. RWG16-FAI." << std::endl;
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     int k = (int) std::sqrt(cores);
@@ -357,7 +357,7 @@ long enq_deq_grouped16_fai(int cores, int operations) {
 }
 
 long enq_deq_grouped16_cas(int cores, int operations) {
-    std::cout << "\nPerforming " << operations << " operations. All operations are evenly distributed between all threads. RW16-CAS." << std::endl;
+    std::cout << "\nPerforming " << operations << " operations. All operations are evenly distributed between all threads. RWG16-CAS." << std::endl;
     std::clock_t c_start = std::clock();
     auto t_start = std::chrono::high_resolution_clock::now();
     CASGQueue<LLICRWSQRTG16> queue{operations, cores, 4};
