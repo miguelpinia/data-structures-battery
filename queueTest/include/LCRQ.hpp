@@ -48,7 +48,7 @@ namespace lcrq_queue {
 
             uint64_t pad[14]; // Guessing that cache line size is of
                               // 64 bits, we add junk with size of 14
-                              // * 8 = 102 bytes. This not affect the
+                              // * 8 = 112 bytes. This not affect the
                               // CAS2, due we use only the 2 first
                               // words. Then, all the struct uses 128
                               // bytes, reason for the 128 alignment
