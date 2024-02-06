@@ -50,6 +50,10 @@ int main() {
     // std::cout << "\n\nEjecutando prueba template SBQ-queue!" << std::endl;
     // time = queue_test_general(8, sbq_queue, operations);
     // std::cout << time << std::endl;
-    experiments::experiments();
+    // experiments::experiments();
+    std::cout << "\nEjecutando sólo enqueues\n";
+    experiments::experiments_only_enq();
+    std::cout << "\nEjecutando sólo dequeues\n";
+    experiments::experiments_only_deq();
     return 0;
 }
