@@ -117,6 +117,9 @@ namespace scal_basket_queue {
             head.store(sentinel, std::memory_order_relaxed);
             tail.store(sentinel, std::memory_order_relaxed);
             retired.store(sentinel, std::memory_order_relaxed);
+            for (unsigned i = 0; i < ENQUEUERS; i++) {
+                protectors[i] = nullptr;
+            }
         }
 
         ~Queue() {
@@ -167,18 +170,9 @@ namespace scal_basket_queue {
                     break;
                 }
             }
-            // while (true) {
-            //     Node* oldNode = head.load();
-            //     if (oldNode->index.load() >= h->index.load()) break;
-            //     if (head.compare_exchange_strong(oldNode, h)) {
-            //         mm.retire(oldNode, thread_id);
-            //         break;
-            //     }
-            // }
             advanceNode(head, h);
             freeNodes();
             unprotect(&protectors[thread_id]);
-            // mm.clear(thread_id);
             return element;
         }
 

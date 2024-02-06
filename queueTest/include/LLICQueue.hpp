@@ -130,6 +130,11 @@ namespace llic_queue {
             A = new Basket[capacity];
         }
 
+        FAIQueue(std::size_t cores) {
+            (void) cores;
+            A = new Basket[capacity];
+        }
+
         ~FAIQueue() {
             delete[] A;
         }

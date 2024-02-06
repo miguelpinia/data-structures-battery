@@ -9,10 +9,11 @@
 // #include "include/LCRQueue.hpp"
 // #include "include/LCRQ.hpp"
 // #include "include/LLICQueue.hpp"
+#include "include/Experiments.hpp"
 
 int main() {
     std::cout << "Ejecutando experimento\n";
-    tests::queue_time_enq_deq(5, 1'000'000);
+    // tests::queue_time_enq_deq(5, 1'000'000);
 
     // std::cout << "Hola Mundo desde queue test!" << std::endl;
     // std::cout << "Comenzando inserción!" << std::endl;
@@ -49,5 +50,6 @@ int main() {
     // std::cout << "\n\nEjecutando prueba template SBQ-queue!" << std::endl;
     // time = queue_test_general(8, sbq_queue, operations);
     // std::cout << time << std::endl;
+    experiments::experiments();
     return 0;
 }
