@@ -281,6 +281,7 @@ namespace experiments {
         for (uintmax_t i = 0; i < ITERATIONS; i++) {
             queue = new Queue(cores);
             execTime = only_enq_test(cores, *queue, operationsByThread);
+            delete queue;
             w.addValue(execTime);
             if (i > K) {
                 double s = w.standard_deviation();
@@ -294,7 +295,6 @@ namespace experiments {
                     smallX = x;
                 }
             }
-            delete queue;
         }
 
         return smallX;
