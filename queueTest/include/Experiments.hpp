@@ -93,6 +93,7 @@ namespace experiments {
 
     template<typename Queue>
     long only_enq_test(int cores, Queue &queue, int operationsByThread) {
+        // std::cout << "Only ENQUEUE: " << &queue << std::endl;
         std::vector<std::thread> threads;
         auto wait_for_begin = []() noexcept {};
         std::barrier sync_point(cores, wait_for_begin);
@@ -133,6 +134,10 @@ namespace experiments {
         }
         auto t_end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<long, std::nano>(t_end - t_start).count();
+
+        while (queue.dequeue(0) != nullptr);
+
+        // std::cout << "Finished: " << &queue << " | " << queue.dequeue(0) << std::endl;
 
         return duration;
     }
@@ -244,8 +249,9 @@ namespace experiments {
         double smallCoV = std::numeric_limits<double>::max();
         long execTime;
         for (uintmax_t i = 0; i < ITERATIONS; i++) {
-            Queue queue{cores};
-            execTime = same_number_enq_deq_test(cores, queue, operationsByThread);
+            Queue *queue = new Queue(cores);
+            execTime = same_number_enq_deq_test(cores, *queue, operationsByThread);
+            delete queue;
             w.addValue(execTime);
             if (i > K) {
                 double s = w.standard_deviation();
@@ -271,9 +277,10 @@ namespace experiments {
         double smallX = std::numeric_limits<double>::max();
         double smallCoV = std::numeric_limits<double>::max();
         long execTime;
+        Queue *queue;
         for (uintmax_t i = 0; i < ITERATIONS; i++) {
-            Queue queue{cores};
-            execTime = only_enq_test(cores, queue, operationsByThread);
+            queue = new Queue(cores);
+            execTime = only_enq_test(cores, *queue, operationsByThread);
             w.addValue(execTime);
             if (i > K) {
                 double s = w.standard_deviation();
@@ -287,7 +294,9 @@ namespace experiments {
                     smallX = x;
                 }
             }
+            delete queue;
         }
+
         return smallX;
     };
 
@@ -524,22 +533,22 @@ namespace experiments {
     };
 
     void experiments_only_enq() {
-        const auto cores = std::thread::hardware_concurrency();
+        const auto cores = 1;//std::thread::hardware_concurrency();
         // std::map<std::string, std::map<std::string, std::vector<long>>> results;
         std::cout << "\n\nMy Experiment with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
-        std::cout << "\n\nFAA-QUEUE\n\n";
-        exp_json_only_enq("FAAQUEUE", experimentOnlyEnq<faa_array::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nMS-QUEUE\n\n";
-        exp_json_only_enq("MSQUEUE", experimentOnlyEnq<ms_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nLCRQ-QUEUE\n\n";
-        exp_json_only_enq("LCRQQUEUE", experimentOnlyEnq<lcrq_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nYMC-QUEUE\n\n";
-        exp_json_only_enq("YMCQUEUE", experimentOnlyEnq<ymc_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nFAA-QUEUE\n\n";
+        // exp_json_only_enq("FAAQUEUE", experimentOnlyEnq<faa_array::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nMS-QUEUE\n\n";
+        // exp_json_only_enq("MSQUEUE", experimentOnlyEnq<ms_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nLCRQ-QUEUE\n\n";
+        // exp_json_only_enq("LCRQQUEUE", experimentOnlyEnq<lcrq_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nYMC-QUEUE\n\n";
+        // exp_json_only_enq("YMCQUEUE", experimentOnlyEnq<ymc_queue::Queue<std::string>>(cores, operations));
         std::cout << "\n\nSBQ-QUEUE\n\n";
         exp_json_only_enq("SBQQUEUE", experimentOnlyEnq<scal_basket_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nLLIC-QUEUE\n\n";
-        exp_json_only_enq("LLICQUEUE", experimentOnlyEnq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
+        // std::cout << "\n\nLLIC-QUEUE\n\n";
+        // exp_json_only_enq("LLICQUEUE", experimentOnlyEnq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
     };
 
     void experiments_only_deq() {
@@ -560,6 +569,7 @@ namespace experiments {
         std::cout << "\n\nLLIC-QUEUE\n\n";
         exp_json_only_deq("LLICQUEUE", experimentOnlyDeq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
     };
+
 
 }
 #endif

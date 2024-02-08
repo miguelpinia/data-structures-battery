@@ -74,7 +74,7 @@ namespace scal_basket_queue {
         alignas(128) std::atomic<Node*> tail;
         std::atomic<Node*> retired;
         Node* protectors[ENQUEUERS];
-        MemoryManagementPool<Node> mm;
+        // MemoryManagementPool<Node> mm;
         std::size_t maxThreads;
 
         enum class Status {BAD_TAIL, SUCCESS, FAILURE};

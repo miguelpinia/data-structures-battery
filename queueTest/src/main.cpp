@@ -53,7 +53,7 @@ int main() {
     // experiments::experiments();
     std::cout << "\nEjecutando sólo enqueues\n";
     experiments::experiments_only_enq();
-    std::cout << "\nEjecutando sólo dequeues\n";
-    experiments::experiments_only_deq();
+    // std::cout << "\nEjecutando sólo dequeues\n";
+    // experiments::experiments_only_deq();
     return 0;
 }
