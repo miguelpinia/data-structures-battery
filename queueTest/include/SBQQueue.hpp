@@ -140,6 +140,7 @@ namespace scal_basket_queue {
                 Status status = tryAppend(t, newNode);
                 if (status == Status::SUCCESS) {
                     tail.compare_exchange_strong(t, newNode);
+                    unprotect(&protectors[thread_id]);
                     return;
                 } else if (status == Status::FAILURE) {
                     t = tail.load();

@@ -98,6 +98,7 @@ namespace experiments {
         auto wait_for_begin = []() noexcept {};
         std::barrier sync_point(cores, wait_for_begin);
 
+        auto t_start = std::chrono::high_resolution_clock::now();
         std::function<void(int)> func = [&] (const int thread_id) {
             std::random_device rd;
             std::mt19937 gen(rd());
@@ -112,7 +113,6 @@ namespace experiments {
             delete foo;
         };
 
-        auto t_start = std::chrono::high_resolution_clock::now();
         for (int i = 0; i < cores; i++) {
             const int thread_id = i;
             threads.push_back(std::thread(func, thread_id));
@@ -135,10 +135,11 @@ namespace experiments {
         auto t_end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<long, std::nano>(t_end - t_start).count();
 
-        while (queue.dequeue(0) != nullptr);
 
+        for (int i = 0; i < operationsByThread * cores; i++) {
+            queue.dequeue(0);
+        }
         // std::cout << "Finished: " << &queue << " | " << queue.dequeue(0) << std::endl;
-
         return duration;
     }
 
@@ -518,22 +519,22 @@ namespace experiments {
         // std::map<std::string, std::map<std::string, std::vector<long>>> results;
         std::cout << "\n\nMy Experiment with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
-        std::cout << "\n\nFAA-QUEUE\n\n";
-        exp_json("FAAQUEUE", experiment<faa_array::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nMS-QUEUE\n\n";
-        exp_json("MSQUEUE", experiment<ms_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nLCRQ-QUEUE\n\n";
-        exp_json("LCRQQUEUE", experiment<lcrq_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nYMC-QUEUE\n\n";
-        exp_json("YMCQUEUE", experiment<ymc_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nFAA-QUEUE\n\n";
+        // exp_json("FAAQUEUE", experiment<faa_array::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nMS-QUEUE\n\n";
+        // exp_json("MSQUEUE", experiment<ms_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nLCRQ-QUEUE\n\n";
+        // exp_json("LCRQQUEUE", experiment<lcrq_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nYMC-QUEUE\n\n";
+        // exp_json("YMCQUEUE", experiment<ymc_queue::Queue<std::string>>(cores, operations));
         std::cout << "\n\nSBQ-QUEUE\n\n";
         exp_json("SBQQUEUE", experiment<scal_basket_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nLLIC-QUEUE\n\n";
-        exp_json("LLICQUEUE", experiment<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
+        // std::cout << "\n\nLLIC-QUEUE\n\n";
+        // exp_json("LLICQUEUE", experiment<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
     };
 
     void experiments_only_enq() {
-        const auto cores = 1;//std::thread::hardware_concurrency();
+        const auto cores = 4;//std::thread::hardware_concurrency();
         // std::map<std::string, std::map<std::string, std::vector<long>>> results;
         std::cout << "\n\nMy Experiment with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
@@ -547,8 +548,8 @@ namespace experiments {
         // exp_json_only_enq("YMCQUEUE", experimentOnlyEnq<ymc_queue::Queue<std::string>>(cores, operations));
         std::cout << "\n\nSBQ-QUEUE\n\n";
         exp_json_only_enq("SBQQUEUE", experimentOnlyEnq<scal_basket_queue::Queue<std::string>>(cores, operations));
-        // std::cout << "\n\nLLIC-QUEUE\n\n";
-        // exp_json_only_enq("LLICQUEUE", experimentOnlyEnq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
+        std::cout << "\n\nLLIC-QUEUE\n\n";
+        exp_json_only_enq("LLICQUEUE", experimentOnlyEnq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
     };
 
     void experiments_only_deq() {
