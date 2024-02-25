@@ -527,10 +527,12 @@ namespace experiments {
         // exp_json("LCRQQUEUE", experiment<lcrq_queue::Queue<std::string>>(cores, operations));
         // std::cout << "\n\nYMC-QUEUE\n\n";
         // exp_json("YMCQUEUE", experiment<ymc_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nSBQ-QUEUE\n\n";
-        exp_json("SBQQUEUE", experiment<scal_basket_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nSBQ-QUEUE\n\n";
+        // exp_json("SBQQUEUE", experiment<scal_basket_queue::Queue<std::string>>(cores, operations));
         // std::cout << "\n\nLLIC-QUEUE\n\n";
         // exp_json("LLICQUEUE", experiment<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
+        std::cout << "\n\nLLIC-Queue-Segments\n\n";
+        exp_json("LLICQUEUE_SEGMENT", experiment<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
     };
 
     void experiments_only_enq() {
@@ -546,29 +548,33 @@ namespace experiments {
         // exp_json_only_enq("LCRQQUEUE", experimentOnlyEnq<lcrq_queue::Queue<std::string>>(cores, operations));
         // std::cout << "\n\nYMC-QUEUE\n\n";
         // exp_json_only_enq("YMCQUEUE", experimentOnlyEnq<ymc_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nSBQ-QUEUE\n\n";
-        exp_json_only_enq("SBQQUEUE", experimentOnlyEnq<scal_basket_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nLLIC-QUEUE\n\n";
-        exp_json_only_enq("LLICQUEUE", experimentOnlyEnq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
+        // std::cout << "\n\nSBQ-QUEUE\n\n";
+        // exp_json_only_enq("SBQQUEUE", experimentOnlyEnq<scal_basket_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nLLIC-QUEUE\n\n";
+        // exp_json_only_enq("LLICQUEUE", experimentOnlyEnq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
+        std::cout << "\n\nLLIC-Queue-Segments\n\n";
+        exp_json_only_enq("LLICQUEUE", experimentOnlyEnq<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
     };
 
     void experiments_only_deq() {
         const auto cores = std::thread::hardware_concurrency();
-        // std::map<std::string, std::map<std::string, std::vector<long>>> results;
+        std::map<std::string, std::map<std::string, std::vector<long>>> results;
         std::cout << "\n\nMy Experiment with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
-        std::cout << "\n\nFAA-QUEUE\n\n";
-        exp_json_only_deq("FAAQUEUE", experimentOnlyDeq<faa_array::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nMS-QUEUE\n\n";
-        exp_json_only_deq("MSQUEUE", experimentOnlyDeq<ms_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nLCRQ-QUEUE\n\n";
-        exp_json_only_deq("LCRQQUEUE", experimentOnlyDeq<lcrq_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nYMC-QUEUE\n\n";
-        exp_json_only_deq("YMCQUEUE", experimentOnlyDeq<ymc_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nSBQ-QUEUE\n\n";
-        exp_json_only_deq("SBQQUEUE", experimentOnlyDeq<scal_basket_queue::Queue<std::string>>(cores, operations));
-        std::cout << "\n\nLLIC-QUEUE\n\n";
-        exp_json_only_deq("LLICQUEUE", experimentOnlyDeq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
+        // std::cout << "\n\nFAA-QUEUE\n\n";
+        // exp_json_only_deq("FAAQUEUE", experimentOnlyDeq<faa_array::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nMS-QUEUE\n\n";
+        // exp_json_only_deq("MSQUEUE", experimentOnlyDeq<ms_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nLCRQ-QUEUE\n\n";
+        // exp_json_only_deq("LCRQQUEUE", experimentOnlyDeq<lcrq_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nYMC-QUEUE\n\n";
+        // exp_json_only_deq("YMCQUEUE", experimentOnlyDeq<ymc_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nSBQ-QUEUE\n\n";
+        // exp_json_only_deq("SBQQUEUE", experimentOnlyDeq<scal_basket_queue::Queue<std::string>>(cores, operations));
+        // std::cout << "\n\nLLIC-QUEUE\n\n";
+        // exp_json_only_deq("LLICQUEUE", experimentOnlyDeq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
+        std::cout << "\n\nLLIC-QUEUE-Segments\n\n";
+        exp_json_only_deq("LLICQUEUE", experimentOnlyDeq<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
     };
 
 
