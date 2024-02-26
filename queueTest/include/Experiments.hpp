@@ -517,7 +517,7 @@ namespace experiments {
     void experiments() {
         const auto cores = std::thread::hardware_concurrency();
         // std::map<std::string, std::map<std::string, std::vector<long>>> results;
-        std::cout << "\n\nMy Experiment with " << cores << " and 1'000'000 operations\n\n";
+        std::cout << "\n\nEnqueue-dequeue experiment with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
         // std::cout << "\n\nFAA-QUEUE\n\n";
         // exp_json("FAAQUEUE", experiment<faa_array::Queue<std::string>>(cores, operations));
@@ -538,7 +538,7 @@ namespace experiments {
     void experiments_only_enq() {
         const auto cores = 4;//std::thread::hardware_concurrency();
         // std::map<std::string, std::map<std::string, std::vector<long>>> results;
-        std::cout << "\n\nMy Experiment with " << cores << " and 1'000'000 operations\n\n";
+        std::cout << "\n\nOnly enqueue experiment with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
         // std::cout << "\n\nFAA-QUEUE\n\n";
         // exp_json_only_enq("FAAQUEUE", experimentOnlyEnq<faa_array::Queue<std::string>>(cores, operations));
@@ -559,7 +559,7 @@ namespace experiments {
     void experiments_only_deq() {
         const auto cores = std::thread::hardware_concurrency();
         std::map<std::string, std::map<std::string, std::vector<long>>> results;
-        std::cout << "\n\nMy Experiment with " << cores << " and 1'000'000 operations\n\n";
+        std::cout << "\n\nOnly dequeue experiment with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
         // std::cout << "\n\nFAA-QUEUE\n\n";
         // exp_json_only_deq("FAAQUEUE", experimentOnlyDeq<faa_array::Queue<std::string>>(cores, operations));
