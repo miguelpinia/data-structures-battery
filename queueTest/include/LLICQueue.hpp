@@ -10,8 +10,10 @@
 namespace llic_queue {
 
     static constexpr int NODE_POW = 10;
+    static constexpr int ARRAY_POW = 16;
     static constexpr int ENQUEUERS = 64;
     static constexpr std::size_t NODE_SIZE = 1ull << NODE_POW;
+    static constexpr std::size_t ARRAY_SIZE = 1ull << ARRAY_POW;
 
     enum StateBasket {OPEN, CLOSED};
     enum StatePut {OK, FULL};
@@ -294,11 +296,21 @@ namespace llic_queue {
 
     public:
         FAIQueueHazard() {
+            for (unsigned i = 0; i < ARRAY_SIZE; i++) {
+                array[i].store(nullptr, std::memory_order_relaxed);
+            }
         }
 
         FAIQueueHazard(std::size_t cores) {
-            for (unsigned i = 0; i < NODE_SIZE; i++) {
+            for (unsigned i = 0; i < ARRAY_SIZE; i++) {
                 array[i].store(nullptr, std::memory_order_relaxed);
+            }
+        }
+
+        void enqueue(T* val, std::size_t thread_id) {
+
+            while (true) {
+                // Segment*
             }
         }
 
