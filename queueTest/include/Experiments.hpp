@@ -538,7 +538,7 @@ namespace experiments {
     };
 
     void experiments_only_enq() {
-        const auto cores = 4;//std::thread::hardware_concurrency();
+        const auto cores = std::thread::hardware_concurrency();
         // std::map<std::string, std::map<std::string, std::vector<long>>> results;
         std::cout << "\n\nOnly enqueue experiment with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
