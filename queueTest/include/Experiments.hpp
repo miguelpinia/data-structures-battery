@@ -531,10 +531,12 @@ namespace experiments {
         // exp_json("SBQQUEUE", experiment<scal_basket_queue::Queue<std::string>>(cores, operations));
         // std::cout << "\n\nLLIC-QUEUE\n\n";
         // exp_json("LLICQUEUE", experiment<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
-        std::cout << "\n\nLLIC-Queue-Segments\n\n";
-        exp_json("LLICQUEUE_SEGMENT", experiment<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
-        std::cout << "\n\nLLIC-Queue-Array\n\n";
-        exp_json("LLICQUEUE_ARRAY", experiment<llic_queue::FAIQueueArray<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        // std::cout << "\n\nLLIC-Queue-Segments\n\n";
+        // exp_json("LLICQUEUE_SEGMENT", experiment<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        // std::cout << "\n\nLLIC-Queue-Array\n\n";
+        // exp_json("LLICQUEUE_ARRAY", experiment<llic_queue::FAIQueueArray<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        std::cout << "\n\nLLIC-Queue-Array-2\n\n";
+        exp_json("LLICQUEUE_ARRAY_2", experiment<llic_queue::FAIQueueArray2<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
     };
 
     void experiments_only_enq() {
@@ -554,10 +556,12 @@ namespace experiments {
         // exp_json_only_enq("SBQQUEUE", experimentOnlyEnq<scal_basket_queue::Queue<std::string>>(cores, operations));
         // std::cout << "\n\nLLIC-QUEUE\n\n";
         // exp_json_only_enq("LLICQUEUE", experimentOnlyEnq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
-        std::cout << "\n\nLLIC-Queue-Segments\n\n";
-        exp_json_only_enq("LLICQUEUE_SEGMENT", experimentOnlyEnq<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
-        std::cout << "\n\nLLIC-Queue-Array\n\n";
-        exp_json_only_enq("LLICQUEUE_ARRAY", experimentOnlyEnq<llic_queue::FAIQueueArray<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        // std::cout << "\n\nLLIC-Queue-Segments\n\n";
+        // exp_json_only_enq("LLICQUEUE_SEGMENT", experimentOnlyEnq<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        // std::cout << "\n\nLLIC-Queue-Array\n\n";
+        // exp_json_only_enq("LLICQUEUE_ARRAY", experimentOnlyEnq<llic_queue::FAIQueueArray<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        std::cout << "\n\nLLIC-Queue-Array-2\n\n";
+        exp_json_only_enq("LLICQUEUE_ARRAY_2", experimentOnlyEnq<llic_queue::FAIQueueArray2<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
     };
 
     void experiments_only_deq() {
@@ -577,10 +581,12 @@ namespace experiments {
         // exp_json_only_deq("SBQQUEUE", experimentOnlyDeq<scal_basket_queue::Queue<std::string>>(cores, operations));
         // std::cout << "\n\nLLIC-QUEUE\n\n";
         // exp_json_only_deq("LLICQUEUE", experimentOnlyDeq<llic_queue::FAIQueue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>, 1000000>>(cores, operations));
-        std::cout << "\n\nLLIC-QUEUE-Segments\n\n";
-        exp_json_only_deq("LLICQUEUE_SEGMENT", experimentOnlyDeq<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
-        std::cout << "\n\nLLIC-QUEUE-Array\n\n";
-        exp_json_only_deq("LLICQUEUE_ARRAY", experimentOnlyDeq<llic_queue::FAIQueueArray<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        // std::cout << "\n\nLLIC-QUEUE-Segments\n\n";
+        // exp_json_only_deq("LLICQUEUE_SEGMENT", experimentOnlyDeq<llic_queue::Queue<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        // std::cout << "\n\nLLIC-QUEUE-Array\n\n";
+        // exp_json_only_deq("LLICQUEUE_ARRAY", experimentOnlyDeq<llic_queue::FAIQueueArray<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
+        std::cout << "\n\nLLIC-QUEUE-Array-2\n\n";
+        exp_json_only_deq("LLICQUEUE_ARRAY_2", experimentOnlyDeq<llic_queue::FAIQueueArray2<std::string, llic_queue::LLICCAS, llic_queue::KBasketFAI<std::string, 4>>>(cores, operations));
     };
 
 

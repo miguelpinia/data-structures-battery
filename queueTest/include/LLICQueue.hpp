@@ -356,6 +356,76 @@ namespace llic_queue {
     };
 
 
+    template <typename T, typename LLIC, typename Basket>
+    class FAIQueueArray2 {
+        // This queue must simulate an infinite array-based queue, but
+        // using nodes, where each contains an array of baskets
+        // We must remember that the baskets only store items whose
+        // insertions were concurrent.
+    private:
+        struct Node {
+            std::array<Basket, NODE_SIZE> ring;
+        };
+        LLIC Head; // Actual head index
+        LLIC Tail;
+        // We need an array of pointers to segments
+        std::array<Node, ARRAY_SIZE> array;
+        // std::atomic<Node*> array[NODE_SIZE]; // Without parameterize the class, we can store a maximum of 2^20 items, approx 1 million of items
+        MemoryManagementPool<Node> mm;
+
+    public:
+        FAIQueueArray2() {
+        }
+
+        FAIQueueArray2(std::size_t cores) {
+            (void) cores;
+        };
+
+        ~FAIQueueArray2() {
+        }
+
+        void enqueue(T* val, std::size_t thread_id) {
+            int tail, node, pos;
+            while (true) {
+                tail = this->Tail.LL();
+                node = tail / ARRAY_SIZE;
+                pos = tail % NODE_SIZE;
+                if (array[node].ring[pos].put(val) == StatePut::OK) {
+                    this->Tail.IC(tail, thread_id);
+                    return;
+                }
+                this->Tail.IC(tail, thread_id);
+            }
+        }
+
+        T* dequeue(std::size_t thread_id) {
+            int head = this->Head.LL();
+            int tail = this->Tail.LL();
+            int node, pos;
+            T* val = nullptr;
+
+            while (true) {
+                if (head < tail) {
+                    node = head / ARRAY_SIZE;
+                    pos = head % NODE_SIZE;
+                    val = array[node].ring[pos].take();
+                    if (val != basket_closed_ptr<T>()) {
+                        return val;
+                    }
+                    this->Head.IC(head, thread_id);
+                }
+                auto hhead = this->Head.LL();
+                auto ttail = this->Tail.LL();
+                if (hhead == head && ttail == tail && head == tail) return nullptr;
+                head = hhead;
+                tail = ttail;
+            }
+            return val;
+        }
+
+    };
+
+
     template<typename T, typename LLIC, typename Basket>
     class Queue {
 
