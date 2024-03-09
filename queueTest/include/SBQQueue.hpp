@@ -74,7 +74,7 @@ namespace scal_basket_queue {
         alignas(128) std::atomic<Node*> tail;
         std::atomic<Node*> retired;
         Node* protectors[ENQUEUERS];
-        MemoryManagementPool<Node> mm;
+        // MemoryManagementPool<Node> mm;
         std::size_t maxThreads;
 
         enum class Status {BAD_TAIL, SUCCESS, FAILURE};
@@ -117,6 +117,9 @@ namespace scal_basket_queue {
             head.store(sentinel, std::memory_order_relaxed);
             tail.store(sentinel, std::memory_order_relaxed);
             retired.store(sentinel, std::memory_order_relaxed);
+            for (unsigned i = 0; i < ENQUEUERS; i++) {
+                protectors[i] = nullptr;
+            }
         }
 
         ~Queue() {
@@ -137,6 +140,7 @@ namespace scal_basket_queue {
                 Status status = tryAppend(t, newNode);
                 if (status == Status::SUCCESS) {
                     tail.compare_exchange_strong(t, newNode);
+                    unprotect(&protectors[thread_id]);
                     return;
                 } else if (status == Status::FAILURE) {
                     t = tail.load();
@@ -167,18 +171,9 @@ namespace scal_basket_queue {
                     break;
                 }
             }
-            // while (true) {
-            //     Node* oldNode = head.load();
-            //     if (oldNode->index.load() >= h->index.load()) break;
-            //     if (head.compare_exchange_strong(oldNode, h)) {
-            //         mm.retire(oldNode, thread_id);
-            //         break;
-            //     }
-            // }
             advanceNode(head, h);
             freeNodes();
             unprotect(&protectors[thread_id]);
-            // mm.clear(thread_id);
             return element;
         }
 
