@@ -16,10 +16,27 @@ if(NOT CMAKE_BUILD_TYPE)
   add_link_options(-fsanitize=address)
 endif()
 
+if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+  message("======================\n\nCoding in Debug Mode\n\n======================\n")
+  set(CMAKE_BUILD_TYPE DEBUG)
+  add_compile_options(-fsanitize=address)
+  add_link_options(-fsanitize=address)
+endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
+
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
 add_custom_target(print_build_type COMMAND ${CMAKE_COMMAND} -E echo ${CMAKE_BUILD_TYPE})
+
+message("Executing " ${CMAKE_BUILD_TYPE} " with flags: " ${CMAKE_CXX_FLAGS})
+
+if (CMAKE_BUILD_TYPE MATCHES DEBUG)
+  message("Additional flags: " ${CMAKE_CXX_FLAGS_DEBUG})
+endif(CMAKE_BUILD_TYPE MATCHES DEBUG)
+
+if (CMAKE_BUILD_TYPE MATCHES RELEASE)
+  message("Additional flags: " ${CMAKE_CXX_FLAGS_RELEASE})
+endif(CMAKE_BUILD_TYPE MATCHES RELEASE)
 
 enable_testing()
 
