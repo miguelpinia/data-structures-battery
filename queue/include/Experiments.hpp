@@ -162,7 +162,7 @@ namespace exp_llic {
         // std::cout << "\nPerforming " << operationsByThread << " of operations by thread in " << cores << " cores. Each thread do the total divided by the number of thread. Case of Fetch&Increment. (With delay)" << std::endl;
         // std::clock_t c_start = std::clock();
         auto t_start = std::chrono::high_resolution_clock::now();
-        LLIC llic;
+        LLIC llic(cores);
         std::vector<std::thread> vecOfThreads;
         auto wait_for_begin = []() noexcept {};
         std::barrier sync_point(cores, wait_for_begin);
@@ -209,7 +209,7 @@ namespace exp_llic {
         // std::cout << "\nPerforming " << operationsByThread << " of operations by thread in " << cores << " cores. Each thread do the total divided by the number of thread. Case of Fetch&Increment. (With delay)" << std::endl;
         // std::clock_t c_start = std::clock();
         auto t_start = std::chrono::high_resolution_clock::now();
-        LLIC llic{cores};
+        LLIC llic(cores);
         std::vector<std::thread> vecOfThreads;
         auto wait_for_begin = []() noexcept {};
         std::barrier sync_point(cores, wait_for_begin);
@@ -527,10 +527,10 @@ namespace exp_llic {
         const auto cores = std::thread::hardware_concurrency();
         std::cout << "LL/IC operations experiment wtih " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
-        std::cout << "\n\nFAI\n\n";
-        to_JSON("FAI", experimentFAI(cores, operations));
-        std::cout << "\n\nLL/IC CAS\n\n";
-        to_JSON("LLICCAS", experimentLLIC<LLICCAS>(cores, operations));
+        // std::cout << "\n\nFAI\n\n";
+        // to_JSON("FAI", experimentFAI(cores, operations));
+        // std::cout << "\n\nLL/IC CAS\n\n";
+        // to_JSON("LLICCAS", experimentLLIC<LLICCAS>(cores, operations));
 
         std::cout << "\n\nLL/IC RW\n\n";
         to_JSON("LLICRW", experimentLLIC2P<LLICRW>(cores, operations));
