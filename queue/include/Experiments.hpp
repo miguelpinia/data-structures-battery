@@ -412,7 +412,34 @@ namespace exp_llic {
         }
 
         return smallX;
+    }
 
+    template<typename LLIC>
+    long meanLLICSQRTGFromCov(std::size_t cores, int operationsByThread, int groupSize) {
+        Window w{K};
+
+        double smallX = std::numeric_limits<double>::max();
+        double smallCoV = std::numeric_limits<double>::max();
+        long execTime;
+
+        for (uintmax_t i = 0; i < ITERATIONS; i++) {
+            execTime = exp_LLIC_SQRTG<LLIC>(cores, operationsByThread, groupSize);
+            w.addValue(execTime);
+            if (i > K) {
+                double s   = w.standard_deviation();
+                double x   = w.mean();
+                double cov = s / x;
+                if (cov < 0.02) {
+                    return x;
+                }
+                if (smallCoV > cov) {
+                    smallCoV = cov;
+                    smallX = x;
+                }
+            }
+        }
+
+        return smallX;
     }
 
     std::vector<long> invocationFAI(std::size_t cores, int operationsByThread) {
@@ -462,6 +489,18 @@ namespace exp_llic {
         return results;
     }
 
+    template<typename LLIC>
+    std::vector<long> invocationLLICSQRTG(std::size_t cores, int operationsByThread, int groupSize) {
+        std::vector<long> results;
+        long result = 0;
+        std::cout << "Cores: " << cores << "; operations: " << operationsByThread << std::endl;
+        for (uintmax_t i = 0; i < P; i++) {
+            result = meanLLICSQRTGFromCov<LLIC>(cores, operationsByThread, groupSize);
+            results.push_back(result);
+        }
+        return results;
+    }
+
     json experimentFAI(int cores, int operations) {
         json exp_json;
         for (int i = 0; i < cores; i++) {
@@ -505,6 +544,17 @@ namespace exp_llic {
         return exp_json;
     }
 
+    template<typename LLIC>
+    json experimentLLICSQRTG(int cores, int operations, int groupSize) {
+        json exp_json;
+        for (int i = 0; i < cores; i++) {
+            std::size_t total_cores = i + 1;
+            int total_ops = operations / (i + 1);
+            exp_json[std::to_string(total_cores)] = invocationLLICSQRTG<LLIC>(total_cores, total_ops, groupSize);
+        }
+        return exp_json;
+    }
+
     void to_JSON(std::string name, json alg_results) {
         json results;
         results["algorithm"] = name;
@@ -532,31 +582,31 @@ namespace exp_llic {
         // std::cout << "\n\nLL/IC CAS\n\n";
         // to_JSON("LLICCAS", experimentLLIC<LLICCAS>(cores, operations));
 
-        std::cout << "\n\nLL/IC RW\n\n";
-        to_JSON("LLICRW", experimentLLIC2P<LLICRW>(cores, operations));
-        std::cout << "\n\nLL/IC RW 16\n\n";
-        to_JSON("LLICRW16", experimentLLIC2P<LLICRW16>(cores, operations));
-        std::cout << "\n\nLL/IC RW 32\n\n";
-        to_JSON("LLICRW128", experimentLLIC2P<LLICRW32>(cores, operations));
-        std::cout << "\n\nLL/IC RW 128\n\n";
-        to_JSON("LLICRW128", experimentLLIC2P<LLICRW128>(cores, operations));
-        std::cout << "\n\nLL/IC RW Without Cycle without false sharing\n\n";
-        to_JSON("LLICRWWC", experimentLLIC2P<LLICRWWC>(cores, operations));
-        std::cout << "\n\nLL/IC RW without false sharing No padding\n\n";
-        to_JSON("LLICRWNP", experimentLLIC2P<LLICRWNP>(cores, operations));
-        std::cout << "\n\nLL/IC RW with false sharing without cycle No padding.\n\n";
-        to_JSON("LLICRWWCNP", experimentLLIC2P<LLICRWWCNP>(cores, operations));
-        std::cout << "\n\nLL/IC RW SQRT with false sharing.\n\n";
+        // std::cout << "\n\nLL/IC RW\n\n";
+        // to_JSON("LLICRW", experimentLLIC2P<LLICRW>(cores, operations));
+        // std::cout << "\n\nLL/IC RW 16\n\n";
+        // to_JSON("LLICRW16", experimentLLIC2P<LLICRW16>(cores, operations));
+        // std::cout << "\n\nLL/IC RW 32\n\n";
+        // to_JSON("LLICRW32", experimentLLIC2P<LLICRW32>(cores, operations));
+        // std::cout << "\n\nLL/IC RW 128\n\n";
+        // to_JSON("LLICRW128", experimentLLIC2P<LLICRW128>(cores, operations));
+        // std::cout << "\n\nLL/IC RW Without Cycle without false sharing\n\n";
+        // to_JSON("LLICRWWC", experimentLLIC2P<LLICRWWC>(cores, operations));
+        // std::cout << "\n\nLL/IC RW without false sharing No padding\n\n";
+        // to_JSON("LLICRWNP", experimentLLIC2P<LLICRWNP>(cores, operations));
+        // std::cout << "\n\nLL/IC RW with false sharing without cycle No padding.\n\n";
+        // to_JSON("LLICRWWCNP", experimentLLIC2P<LLICRWWCNP>(cores, operations));
+        // std::cout << "\n\nLL/IC RW SQRT with false sharing.\n\n";
 
-        to_JSON("LLICRWSQRT", experimentLLICSQRT<LLICRWSQRT>(cores, operations));
-        std::cout << "\n\nLL/IC RW SQRT without false sharing. 64 bytes padding\n\n";
-        to_JSON("LLICRWSQRTFS", experimentLLICSQRT<LLICRWSQRTFS>(cores, operations));
-        // std::cout << "\n\nLL/IC RW SQRT without false sharing. Grouped\n\n";
-        // to_JSON("LLICRWSQRTG", experimentLLICSQRT<LLICRWSQRTG>(cores, operations));
-        // std::cout << "\n\nLL/IC RW SQRT without false sharing. Grouped 16 Bytes padding \n\n";
-        // to_JSON("LLICRWSQRTG16", experimentLLICSQRT<LLICRWSQRTG16>(cores, operations));
-        // std::cout << "\n\nLL/IC RW SQRT without false sharing. Grouped 32 Bytes padding \n\n";
-        // to_JSON("LLICRWSQRTG16", experimentLLICSQRT<LLICRWSQRTG32>(cores, operations));
+        // to_JSON("LLICRWSQRT", experimentLLICSQRT<LLICRWSQRT>(cores, operations));
+        // std::cout << "\n\nLL/IC RW SQRT without false sharing. 64 bytes padding\n\n";
+        // to_JSON("LLICRWSQRTFS", experimentLLICSQRT<LLICRWSQRTFS>(cores, operations));
+        std::cout << "\n\nLL/IC RW SQRT without false sharing. Grouped\n\n";
+        to_JSON("LLICRWSQRTG", experimentLLICSQRTG<LLICRWSQRTG>(cores, operations, 4));
+        std::cout << "\n\nLL/IC RW SQRT without false sharing. Grouped 16 Bytes padding \n\n";
+        to_JSON("LLICRWSQRTG16", experimentLLICSQRTG<LLICRWSQRTG16>(cores, operations, 2));
+        std::cout << "\n\nLL/IC RW SQRT without false sharing. Grouped 32 Bytes padding \n\n";
+        to_JSON("LLICRWSQRTG16", experimentLLICSQRTG<LLICRWSQRTG32>(cores, operations, 4));
 
     }
 
