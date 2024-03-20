@@ -68,8 +68,6 @@ namespace exp_llic {
     };
 
     long exp_FAI(int cores, int operationsByThread) {
-        // std::cout << "\nPerforming " << operationsByThread << " of operations by thread in " << cores << " cores. Each thread do the total divided by the number of thread. Case of Fetch&Increment. (With delay)" << std::endl;
-        // std::clock_t c_start = std::clock();
         auto t_start = std::chrono::high_resolution_clock::now();
         std::atomic_int FAI = 0;
         std::vector<std::thread> vecOfThreads;
@@ -103,17 +101,13 @@ namespace exp_llic {
             }
         }
 
-        // std::clock_t c_end = std::clock();
         auto t_end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<long, std::nano>(t_end - t_start).count();
-        // print_time((c_end - c_start), duration, FAI.load());
         return duration;
     }
 
     template<typename LLIC>
     long exp_LLIC(int cores, int operationsByThread) {
-        // std::cout << "\nPerforming " << operationsByThread << " of operations by thread in " << cores << " cores. Each thread do the total divided by the number of thread. Case of Fetch&Increment. (With delay)" << std::endl;
-        // std::clock_t c_start = std::clock();
         auto t_start = std::chrono::high_resolution_clock::now();
         LLIC llic;
         std::vector<std::thread> vecOfThreads;
@@ -150,17 +144,13 @@ namespace exp_llic {
             }
         }
         // Finish execution
-        // std::clock_t c_end = std::clock();
         auto t_end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
-        // print_time((c_end - c_start), duration, llic.LL());
         return duration;
     }
 
     template<typename LLIC>
     long exp_LLIC_2_params(int cores, int operationsByThread) {
-        // std::cout << "\nPerforming " << operationsByThread << " of operations by thread in " << cores << " cores. Each thread do the total divided by the number of thread. Case of Fetch&Increment. (With delay)" << std::endl;
-        // std::clock_t c_start = std::clock();
         auto t_start = std::chrono::high_resolution_clock::now();
         LLIC llic(cores);
         std::vector<std::thread> vecOfThreads;
@@ -197,17 +187,13 @@ namespace exp_llic {
             }
         }
         // Finish execution
-        // std::clock_t c_end = std::clock();
         auto t_end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
-        // print_time((c_end - c_start), duration, llic.LL());
         return duration;
     }
 
     template<typename LLIC>
     long exp_LLIC_SQRT(int cores, int operationsByThread) {
-        // std::cout << "\nPerforming " << operationsByThread << " of operations by thread in " << cores << " cores. Each thread do the total divided by the number of thread. Case of Fetch&Increment. (With delay)" << std::endl;
-        // std::clock_t c_start = std::clock();
         auto t_start = std::chrono::high_resolution_clock::now();
         LLIC llic(cores);
         std::vector<std::thread> vecOfThreads;
@@ -245,10 +231,8 @@ namespace exp_llic {
             }
         }
         // Finish execution
-        // std::clock_t c_end = std::clock();
         auto t_end = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
-        // print_time((c_end - c_start), duration, llic.LL());
         return duration;
     }
 
