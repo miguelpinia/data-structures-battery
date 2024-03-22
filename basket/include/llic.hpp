@@ -199,7 +199,9 @@ private:
     int group_size;
     int size;
 public:
+    LLICRWSQRTG32();
     LLICRWSQRTG32(int n, int group_size);
+    void initializeDefault(int n, int group_size);
     int LL(int& ind_max_p);
     bool IC(int max_p, int& idx_max_p, int thread_id);
     ~LLICRWSQRTG32();

@@ -381,10 +381,103 @@ namespace exp_queue {
         return duration;
     }
 
+        long enq_deq_grouped32_fai(int cores, int operations) {
+        // std::cout << "\nPerforming " << operations << " operations. All operations are evenly distributed between all threads. RWG16-FAI." << std::endl;
+        auto t_start = std::chrono::high_resolution_clock::now();
+        int k = (int) std::sqrt(cores);
+        if (cores > 1) k++;
+        std::cout << "K: " << k << std::endl;
+        FAIGQueue<LLICRWSQRTG32> queue{operations, k, cores, 4};
+        std::vector<std::thread> threads;
+        int totalOps = operations / cores;
+        auto wait_for_begin = [] () noexcept {};
+        std::barrier sync_point(cores, wait_for_begin);
+        std::function<void(int)> func = [&](int processID) {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<> distrib(1, 3);
+            sync_point.arrive_and_wait();
+            int tail_idx_max = 0;
+            int head_idx_max = 0;
+            for (int i = 0; i < totalOps; i++) {
+                queue.enqueue(distrib(gen), processID, tail_idx_max);
+                std::atomic_thread_fence(std::memory_order_release);
+                for (int j = 0; j < 40; j = j + distrib(gen)) {}
+                std::atomic_thread_fence(std::memory_order_release);
+                queue.dequeue(processID, tail_idx_max, head_idx_max);
+                std::atomic_thread_fence(std::memory_order_acquire);
+                for (int j = 0; j < 40; j = j + distrib(gen)) {}
+                std::atomic_thread_fence(std::memory_order_release);
+            }
+        };
+        for (int i = 0; i < cores; i++) {
+            threads.emplace_back(func, i);
+            cpu_set_t cpuset;
+            CPU_ZERO(&cpuset);
+            CPU_SET(i, &cpuset);
+            int rc = pthread_setaffinity_np(threads[i].native_handle(),
+                                            sizeof(cpu_set_t), &cpuset);
+            if (rc != 0) {
+                std::cerr << "Error calling pthread_setaffinity_np: " << rc << "\n";
+            }
+        }
+        for (std::thread &th : threads) {
+            if (th.joinable()) th.join();
+        }
+        auto t_end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<long, std::nano>(t_end - t_start).count();
+        return duration;
+    }
+
     long enq_deq_grouped16_cas(int cores, int operations) {
         // std::cout << "\nPerforming " << operations << " operations. All operations are evenly distributed between all threads. RWG16-CAS." << std::endl;
         auto t_start = std::chrono::high_resolution_clock::now();
         CASGQueue<LLICRWSQRTG16> queue{operations, cores, 4};
+        std::vector<std::thread> threads;
+        int totalOps = operations / cores;
+        auto wait_for_begin = [] () noexcept {};
+        std::barrier sync_point(cores, wait_for_begin);
+        std::function<void(int)> func = [&](int processID) {
+            std::random_device rd;
+            std::mt19937 gen(rd());
+            std::uniform_int_distribution<> distrib(1, 3);
+            sync_point.arrive_and_wait();
+            int tail_idx_max = 0;
+            int head_idx_max = 0;
+            for (int i = 0; i < totalOps; i++) {
+                queue.enqueue(distrib(gen), processID, tail_idx_max);
+                std::atomic_thread_fence(std::memory_order_release);
+                for (int j = 0; j < 40; j = j + distrib(gen)) {}
+                std::atomic_thread_fence(std::memory_order_release);
+                queue.dequeue(processID, tail_idx_max, head_idx_max);
+                std::atomic_thread_fence(std::memory_order_acquire);
+                for (int j = 0; j < 40; j = j + distrib(gen)) {}
+                std::atomic_thread_fence(std::memory_order_release);
+            }
+        };
+        for (int i = 0; i < cores; i++) {
+            threads.emplace_back(func, i);
+            cpu_set_t cpuset;
+            CPU_ZERO(&cpuset);
+            CPU_SET(i, &cpuset);
+            int rc = pthread_setaffinity_np(threads[i].native_handle(),
+                                            sizeof(cpu_set_t), &cpuset);
+            if (rc != 0) {
+                std::cerr << "Error calling pthread_setaffinity_np: " << rc << "\n";
+            }
+        }
+        for (std::thread &th : threads) {
+            if (th.joinable()) th.join();
+        }
+        auto t_end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration<long, std::nano>(t_end - t_start).count();
+        return duration;
+    }
+
+        long enq_deq_grouped32_cas(int cores, int operations) {
+        // std::cout << "\nPerforming " << operations << " operations. All operations are evenly distributed between all threads. RWG16-CAS." << std::endl;
+        auto t_start = std::chrono::high_resolution_clock::now();
+        CASGQueue<LLICRWSQRTG32> queue{operations, cores, 4};
         std::vector<std::thread> threads;
         int totalOps = operations / cores;
         auto wait_for_begin = [] () noexcept {};
@@ -756,6 +849,55 @@ namespace exp_queue {
         return exp_json;
     }
 
+
+    long mean_grouped32_fai_from_cov(std::size_t cores, int operations) {
+        Window w{K};
+
+        double smallX = std::numeric_limits<double>::max();
+        double smallCoV = std::numeric_limits<double>::max();
+        long execTime;
+
+        for (uintmax_t i = 0; i < ITERATIONS; i++) {
+            execTime = enq_deq_grouped32_fai(cores, operations);
+            w.addValue(execTime);
+            if (i > K) {
+                double s   = w.standard_deviation();
+                double x   = w.mean();
+                double cov = s / x;
+                if (cov < 0.02) {
+                    return x;
+                }
+                if (smallCoV > cov) {
+                    smallCoV = cov;
+                    smallX = x;
+                }
+            }
+        }
+        return smallX;
+    }
+
+    std::vector<long> invocation_grouped32_fai(std::size_t cores, int operations) {
+        std::vector<long> results;
+        long result = 0;
+        std::cout << "Cores: " << cores << "; operations: " << operations << std::endl;
+        for (uintmax_t i = 0; i < P; i++) {
+            result = mean_grouped32_fai_from_cov(cores, operations);
+            results.push_back(result);
+        }
+        return results;
+    }
+
+    json experiment_grouped32_fai(int cores, int operations) {
+        json exp_json;
+        for (int i = 0; i < cores; i++) {
+            std::size_t total_cores = i + 1;
+            // int total_ops = operations / (i + 1);
+            exp_json[std::to_string(total_cores)] = invocation_grouped32_fai(total_cores, operations);
+        }
+        return exp_json;
+    }
+
+
     long mean_grouped16_cas_from_cov(std::size_t cores, int operations) {
         Window w{K};
 
@@ -803,6 +945,54 @@ namespace exp_queue {
         return exp_json;
     }
 
+
+    long mean_grouped32_cas_from_cov(std::size_t cores, int operations) {
+        Window w{K};
+
+        double smallX = std::numeric_limits<double>::max();
+        double smallCoV = std::numeric_limits<double>::max();
+        long execTime;
+
+        for (uintmax_t i = 0; i < ITERATIONS; i++) {
+            execTime = enq_deq_grouped32_cas(cores, operations);
+            w.addValue(execTime);
+            if (i > K) {
+                double s   = w.standard_deviation();
+                double x   = w.mean();
+                double cov = s / x;
+                if (cov < 0.02) {
+                    return x;
+                }
+                if (smallCoV > cov) {
+                    smallCoV = cov;
+                    smallX = x;
+                }
+            }
+        }
+        return smallX;
+    }
+
+    std::vector<long> invocation_grouped32_cas(std::size_t cores, int operations) {
+        std::vector<long> results;
+        long result = 0;
+        std::cout << "Cores: " << cores << "; operations: " << operations << std::endl;
+        for (uintmax_t i = 0; i < P; i++) {
+            result = mean_grouped32_cas_from_cov(cores, operations);
+            results.push_back(result);
+        }
+        return results;
+    }
+
+    json experiment_grouped32_cas(int cores, int operations) {
+        json exp_json;
+        for (int i = 0; i < cores; i++) {
+            std::size_t total_cores = i + 1;
+            // int total_ops = operations / (i + 1);
+            exp_json[std::to_string(total_cores)] = invocation_grouped32_cas(total_cores, operations);
+        }
+        return exp_json;
+    }
+
     void to_JSON(std::string name, json alg_results) {
         json results;
         results["algorithm"] = name;
@@ -825,22 +1015,26 @@ namespace exp_queue {
         const auto cores = std::thread::hardware_concurrency();
         std::cout << "Inner queue experiments with " << cores << " and 1'000'000 operations\n\n";
         int operations = 1'000'000;
-        std::cout << "\n\n LLIC CAS Basket CAS queue\n\n";
-        to_JSON("CAS_CAS_QUEUE", experiment_cas_cas(cores, operations));
-        std::cout << "\n\n LLIC CAS Basket FAI queue\n\n";
-        to_JSON("CAS_FAI_QUEUE", experiment_cas_fai(cores, operations));
-        std::cout << "\n\n LLIC RW Basket CAS queue\n\n";
-        to_JSON("RW_CAS_QUEUE", experiment_rw_cas(cores, operations));
-        std::cout << "\n\n LLIC RW16 Basket CAS queue\n\n";
-        to_JSON("RW16_CAS_QUEUE", experiment_rw16_cas(cores, operations));
-        std::cout << "\n\n LLIC RW Basket FAI queue\n\n";
-        to_JSON("RW_FAI_QUEUE", experiment_rw_fai(cores, operations));
-        std::cout << "\n\n LLIC RW16 Basket FAI queue\n\n";
-        to_JSON("RW16_FAI_QUEUE", experiment_rw16_fai(cores, operations));
-        std::cout << "\n\n LLIC SQRT grouped 16 bytes padding Basket FAI queue\n\n";
-        to_JSON("RWSQRT16_FAI_QUEUE", experiment_grouped16_fai(cores, operations));
+        // std::cout << "\n\n LLIC CAS Basket CAS queue\n\n";
+        // to_JSON("CAS_CAS_QUEUE", experiment_cas_cas(cores, operations));
+        // std::cout << "\n\n LLIC CAS Basket FAI queue\n\n";
+        // to_JSON("CAS_FAI_QUEUE", experiment_cas_fai(cores, operations));
+        // std::cout << "\n\n LLIC RW Basket CAS queue\n\n";
+        // to_JSON("RW_CAS_QUEUE", experiment_rw_cas(cores, operations));
+        // std::cout << "\n\n LLIC RW16 Basket CAS queue\n\n";
+        // to_JSON("RW16_CAS_QUEUE", experiment_rw16_cas(cores, operations));
+        // std::cout << "\n\n LLIC RW Basket FAI queue\n\n";
+        // to_JSON("RW_FAI_QUEUE", experiment_rw_fai(cores, operations));
+        // std::cout << "\n\n LLIC RW16 Basket FAI queue\n\n";
+        // to_JSON("RW16_FAI_QUEUE", experiment_rw16_fai(cores, operations));
+        // std::cout << "\n\n LLIC SQRT grouped 16 bytes padding Basket FAI queue\n\n";
+        // to_JSON("RWSQRT16_FAI_QUEUE", experiment_grouped16_fai(cores, operations));
+        std::cout << "\n\n LLIC SQRT grouped 32 bytes padding Basket FAI queue\n\n";
+        to_JSON("RWSQRT32_FAI_QUEUE", experiment_grouped32_fai(cores, operations));
         std::cout << "\n\n LLIC SQRT grouped 16 bytes padding Basket CAS queue\n\n";
-        to_JSON("RWSQRT16_CAS_QUEUE", experiment_grouped16_fai(cores, operations));
+        to_JSON("RWSQRT16_CAS_QUEUE", experiment_grouped16_cas(cores, operations));
+        std::cout << "\n\n LLIC SQRT grouped 32 bytes padding Basket CAS queue\n\n";
+        to_JSON("RWSQRT32_CAS_QUEUE", experiment_grouped32_cas(cores, operations));
     }
 
 }
