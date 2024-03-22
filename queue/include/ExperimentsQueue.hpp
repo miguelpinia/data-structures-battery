@@ -386,7 +386,7 @@ namespace exp_queue {
         auto t_start = std::chrono::high_resolution_clock::now();
         int k = (int) std::sqrt(cores);
         if (cores > 1) k++;
-        std::cout << "K: " << k << std::endl;
+        // std::cout << "K: " << k << std::endl;
         FAIGQueue<LLICRWSQRTG32> queue{operations, k, cores, 4};
         std::vector<std::thread> threads;
         int totalOps = operations / cores;
