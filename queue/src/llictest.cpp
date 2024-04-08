@@ -83,7 +83,7 @@ long same_ops_FAI_delay(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, fai.load());
-    return duration;
+    return fai.load();
 }
 
 
@@ -133,7 +133,7 @@ long same_ops_LLICCAS(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
-    return duration;
+    return llic.LL();
 }
 
 long same_ops_LLICCAST(int cores) {
@@ -178,7 +178,7 @@ long same_ops_LLICCAST(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.get());
-    return duration;
+    return llic.get();
 }
 
 
@@ -230,7 +230,7 @@ long same_ops_LLICRW(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
-    return duration;
+    return llic.LL();
 }
 
 long same_ops_LLICRW16(int cores) {
@@ -281,7 +281,7 @@ long same_ops_LLICRW16(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
-    return duration;
+    return llic.LL();
 }
 
 long same_ops_LLICRW32(int cores) {
@@ -332,7 +332,7 @@ long same_ops_LLICRW32(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
-    return duration;
+    return llic.LL();
 }
 
 long same_ops_LLICRW128(int cores) {
@@ -383,7 +383,7 @@ long same_ops_LLICRW128(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
-    return duration;
+    return llic.LL();
 }
 
 long same_ops_LLICRWWC(int cores) {
@@ -431,7 +431,7 @@ long same_ops_LLICRWWC(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
-    return duration;
+    return llic.LL();
 }
 
 long same_ops_LLICRWNP(int cores) {
@@ -480,7 +480,7 @@ long same_ops_LLICRWNP(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
-    return duration;
+    return llic.LL();
 }
 
 long same_ops_LLICRWNCT(int cores) {
@@ -528,7 +528,7 @@ long same_ops_LLICRWNCT(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.get());
-    return duration;
+    return llic.get();
 }
 
 long same_ops_LLICRWWCNP(int cores) {
@@ -576,7 +576,7 @@ long same_ops_LLICRWWCNP(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL());
-    return duration;
+    return llic.LL();
 }
 
 long same_ops_LLICRW_SQRT(int cores) {
@@ -628,7 +628,7 @@ long same_ops_LLICRW_SQRT(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL(fake_ind_max_p));
-    return duration;
+    return llic.LL(fake_ind_max_p);
 }
 
 long same_ops_LLICRW_SQRT_FS(int cores) {
@@ -680,7 +680,7 @@ long same_ops_LLICRW_SQRT_FS(int cores) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL(fake_ind_max_p));
-    return duration;
+    return llic.LL(fake_ind_max_p);
 }
 
 long same_ops_LLICRW_SQRT_G(int cores, int group_size) {
@@ -733,7 +733,7 @@ long same_ops_LLICRW_SQRT_G(int cores, int group_size) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL(fake_ind_max_p));
-    return duration;
+    return llic.LL(fake_ind_max_p);
 }
 
 long same_ops_LLICRW_SQRT_G_16(int cores, int group_size) {
@@ -785,7 +785,7 @@ long same_ops_LLICRW_SQRT_G_16(int cores, int group_size) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL(fake_ind_max_p));
-    return duration;
+    return llic.LL(fake_ind_max_p);
 }
 
 long same_ops_LLICRW_SQRT_G_32(int cores, int group_size) {
@@ -837,7 +837,7 @@ long same_ops_LLICRW_SQRT_G_32(int cores, int group_size) {
     auto t_end = std::chrono::high_resolution_clock::now();
     auto duration = std::chrono::duration<long, std::nano>(t_end-t_start).count();
     print_time((c_end - c_start), duration, llic.LL(fake_ind_max_p));
-    return duration;
+    return llic.LL(fake_ind_max_p);
 }
 
 
@@ -932,7 +932,7 @@ void experiment_time_execution(int iterations) {
     currTm = std::localtime(&currTime);
     char buffer[256];
     std::strftime(buffer, sizeof(buffer), "%Y-%m-%d-%H:%M:%S", currTm);
-    std::string fileName = std::string(buffer) + "_experiment_time_execution.json";
+    std::string fileName = std::string(buffer) + "_experiment_last_value.json";
     std::ofstream file(fileName);
     file << std::setw(4) << result << std::endl;
     file.close();

@@ -3,11 +3,13 @@
 #include "include/latency.hpp"
 #include "include/basket_queue_test.hpp"
 #include "include/Experiments.hpp"
+#include "include/ExperimentsQueue.hpp"
 
 int main() {
     std::cout << "Hola mundo" << std::endl;
     // experiment_time_execution(40);
     // latency_experiment(40);
     // queue_time_experiments(10);
-    exp_llic::experiments();
+    // exp_llic::experiments();
+    exp_queue::experiments();
 }

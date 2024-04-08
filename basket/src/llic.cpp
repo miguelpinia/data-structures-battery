@@ -532,6 +532,8 @@ LLICRWSQRTG16::~LLICRWSQRTG16() {
 // 32 bytes //
 //////////////
 
+LLICRWSQRTG32::LLICRWSQRTG32() {}
+
 LLICRWSQRTG32::LLICRWSQRTG32(int n, int group): num_processes(n), group_size(group)
 {
     size = (num_processes / group_size) + 1;
@@ -571,6 +573,16 @@ bool LLICRWSQRTG32::IC(int max_p, int &idx_max_p, int thread_id)
 
 LLICRWSQRTG32::~LLICRWSQRTG32() {
     delete [] M;
+}
+
+void LLICRWSQRTG32::initializeDefault(int n, int gs) {
+    num_processes = n;
+    group_size = gs;
+    size = (num_processes / group_size) + 1;
+    M = new aligned_atomic_int_32[size];
+    for (int i = 0; i < size; i++) {
+        M[i].value.store(0);
+    }
 }
 
 //////////////////////////////////////
